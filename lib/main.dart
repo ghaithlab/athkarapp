@@ -56,7 +56,7 @@ class _MyAppState extends State<MyApp> {
         child: Scaffold(
           appBar: AppBar(
             title: Text(
-              _isMorning ? 'أذكار الصباح' : 'أذكار المساء',
+              _isMorning ? '** الصباح' : '** المساء',
               textAlign: TextAlign.center,
             ),
             actions: [
