@@ -9,19 +9,20 @@ void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
   MyApp({super.key});
-  ThemeData _themeData = ThemeData.dark();
+  //ThemeData _themeData = ThemeData.dark();
 
   @override
   State<MyApp> createState() => _MyAppState();
+
   static _MyAppState? of(BuildContext context) =>
       context.findAncestorStateOfType<_MyAppState>();
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
   ThemeMode _themeMode = ThemeMode.dark;
   late SharedPreferences _prefs;
 
+  @override
   void initState() {
     super.initState();
 
@@ -39,13 +40,15 @@ class _MyAppState extends State<MyApp> {
   void changeTheme() {
     setState(() {
       _prefs.setBool('isDarkTheme', (_themeMode == ThemeMode.light));
-      if (_themeMode == ThemeMode.light)
+      if (_themeMode == ThemeMode.light) {
         _themeMode = ThemeMode.dark;
-      else
+      } else {
         _themeMode = ThemeMode.light;
+      }
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
         themeMode: _themeMode,
@@ -53,6 +56,6 @@ class _MyAppState extends State<MyApp> {
         darkTheme: ThemeData.dark(),
         // Set the theme to a dark color scheme
         debugShowCheckedModeBanner: false,
-        home: AthkarPage(themeData: widget._themeData));
+        home: AthkarPage());
   }
 }

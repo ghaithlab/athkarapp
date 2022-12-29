@@ -8,8 +8,6 @@ import 'athkarListView.dart';
 
 class AthkarPage extends StatefulWidget {
   @override
-  AthkarPage({required this.themeData});
-  ThemeData themeData = ThemeData.dark();
   _AthkarPageState createState() => _AthkarPageState();
 }
 
@@ -34,16 +32,11 @@ class _AthkarPageState extends State<AthkarPage> {
       _isMorning = false;
     }
     buildAthkarList();
-    widget.themeData = ThemeData.dark();
     _fontSize = 20;
 
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         _prefs = prefs;
-        // Retrieve the stored theme and font size data from the shared preferences, if available
-        widget.themeData = _prefs.getBool('isDarkTheme') ?? true
-            ? ThemeData.dark()
-            : ThemeData.light();
         _fontSize = _prefs.getDouble('fontSize') ?? 20;
       });
     });
