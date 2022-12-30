@@ -1,6 +1,7 @@
 import 'package:athkarapp/main.dart';
+import 'package:athkarapp/statsPage.dart';
 
-import '../selectableButton.dart';
+//import '../selectableButton.dart';
 import 'athkar.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -97,10 +98,22 @@ class _AthkarPageState extends State<AthkarPage> {
                       //   // tooltip: 'تبديل بين اذكار الصباح واذكار المساء',
                       // ),
                       IconButton(
+                        icon: const Icon(Icons.stacked_line_chart),
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return StatsPage();
+                          }));
+                        },
+                        tooltip: 'تبديل السمة',
+                      ),
+                      IconButton(
                         icon: const Icon(Icons.refresh),
                         onPressed: () {
                           setState(() {
                             buildAthkarList();
+                            //TODO: to remove
+                            //_prefs.clear();
                           });
                         },
                         tooltip: 'اعادة الاذكار',
@@ -156,6 +169,7 @@ class _AthkarPageState extends State<AthkarPage> {
           athkars: athkars,
           fontSize: _fontSize,
           removedItems: _removedItems,
+          isMorning: _isMorning,
         ),
       ),
     );

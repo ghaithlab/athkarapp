@@ -33,15 +33,26 @@ class DateUtil {
     'Dec',
   ];
 
+  // static const List<String> WEEK_LABEL = [
+  //   '',
+  //   'Sun',
+  //   'Mon',
+  //   'Tue',
+  //   'Wed',
+  //   'Thu',
+  //   'Fri',
+  //   'Sat',
+  // ];
+
   static const List<String> WEEK_LABEL = [
     '',
-    'Sun',
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
+    'الأحد',
+    'الاثنين',
+    'الثلاثاء',
+    'الأربعاء',
+    'الخميس',
+    'الجمعة',
+    'السبت',
   ];
 
   /// Get start day of month.
@@ -55,6 +66,9 @@ class DateUtil {
   /// Get exactly one year before of [referenceDate].
   static DateTime oneYearBefore(final DateTime referenceDate) =>
       DateTime(referenceDate.year - 1, referenceDate.month, referenceDate.day);
+
+  static DateTime threeMonthBefore(final DateTime referenceDate) =>
+      DateTime(referenceDate.year, referenceDate.month - 3, referenceDate.day);
 
   /// Separate [referenceDate]'s month to List of every weeks.
   static List<Map<DateTime, DateTime>> separatedMonth(
