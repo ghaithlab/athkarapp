@@ -1,5 +1,6 @@
 import 'package:athkarapp/main.dart';
 
+import '../selectableButton.dart';
 import 'athkar.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +18,8 @@ class _AthkarPageState extends State<AthkarPage> {
   double _fontSize = 0;
   bool _isMorning = true; // Set the initial value to true
   late SharedPreferences _prefs;
+  bool selected = false;
+  String pressedText = "أذكار الصباح";
 //testing
 //testing 2
   @override
@@ -48,94 +51,105 @@ class _AthkarPageState extends State<AthkarPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            _isMorning ? '** الصباح' : '** المساء',
-            textAlign: TextAlign.center,
-          ),
+          // title: Text(
+          //   _isMorning ? ' الصباح' : ' المساء',
+          //   textAlign: TextAlign.center,
+          // ),
+
           actions: [
-            // Add the refresh button to the app bar
-            Switch(
-              value: _isMorning,
-              onChanged: (value) {
-                setState(() {
-                  _isMorning = value;
-                  buildAthkarList();
-                });
-              },
-              // tooltip: 'تبديل بين اذكار الصباح واذكار المساء',
-            ),
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () {
-                setState(() {
-                  buildAthkarList();
-                });
-              },
-              tooltip: 'اعادة الاذكار',
-            ),
-            IconButton(
-              icon: const Icon(Icons.brightness_6),
-              onPressed: () {
-                MyApp.of(context)!.changeTheme();
-
-                setState(() {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) {
-                  //     return Scaffold(
-                  //       body: Center(
-                  //           child: FloatingActionButton(
-                  //         onPressed: () {
-                  //           Navigator.pop(context);
-                  //         },
-                  //         child: Text("test"),
-                  //       )),
-                  //     );
-                  //   }),
-                  // );
-                  // if (widget.themeData == ThemeData.dark()) {
-                  //   widget.themeData = ThemeData.light();
-                  // } else {
-                  //   widget.themeData = ThemeData.dark();
-                  // }
-
-                  //buildAthkarList();
-                });
-              },
-              tooltip: 'تبديل السمة',
-            ),
-            // Add the font size increase button to the app bar
-
-            TextButton(
-                onPressed: () {
-                  setState(() {
-                    _fontSize++;
-                    _prefs.setDouble('fontSize', _fontSize);
-                  });
-                },
-                child: const Text(
-                  "ض",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 24,
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: TextButton(
+                      style: ButtonStyle(
+                          textStyle: MaterialStateProperty.all(
+                              const TextStyle(fontSize: 20)),
+                          overlayColor:
+                              MaterialStateProperty.all(Colors.grey[600]),
+                          foregroundColor:
+                              MaterialStateProperty.all(Colors.white)),
+                      onPressed: (() {
+                        setState(() {
+                          _isMorning = !_isMorning;
+                          buildAthkarList();
+                        });
+                      }),
+                      child: Text(
+                        _isMorning ? 'أذكار الصباح' : "أذكار المساء",
+                      ),
+                    ),
                   ),
-                )),
-            TextButton(
-                onPressed: () {
-                  setState(() {
-                    _fontSize--;
-                    _prefs.setDouble('fontSize', _fontSize);
-                  });
-                },
-                child: const Text(
-                  "ض",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
+                  Row(
+                    children: [
+                      // Add the refresh button to the app bar
+
+                      // Switch(
+                      //   value: _isMorning,
+                      //   onChanged: (value) {
+                      //     setState(() {
+                      //       _isMorning = value;
+                      //       buildAthkarList();
+                      //     });
+                      //   },
+                      //   // tooltip: 'تبديل بين اذكار الصباح واذكار المساء',
+                      // ),
+                      IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: () {
+                          setState(() {
+                            buildAthkarList();
+                          });
+                        },
+                        tooltip: 'اعادة الاذكار',
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.brightness_6),
+                        onPressed: () {
+                          MyApp.of(context)!.changeTheme();
+                        },
+                        tooltip: 'تبديل السمة',
+                      ),
+                      // Add the font size increase button to the app bar
+
+                      TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _fontSize++;
+                              _prefs.setDouble('fontSize', _fontSize);
+                            });
+                          },
+                          child: const Text(
+                            "ض",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 24,
+                            ),
+                          )),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _fontSize--;
+                            _prefs.setDouble('fontSize', _fontSize);
+                          });
+                        },
+                        child: const Text(
+                          "ض",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                )),
+                ],
+              ),
+            ),
           ],
         ),
         body: AthkarList(
