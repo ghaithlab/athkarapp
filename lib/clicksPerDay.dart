@@ -87,6 +87,10 @@ class ClicksPerDay {
     }
     print(morningClicksOfDays);
     print(afternoonClicksOfDays);
+    if (afternoonClicksOfDays.isNotEmpty)
+      afternoonClicksOfDays = normalizeMap(afternoonClicksOfDays);
+    if (morningClicksOfDays.isNotEmpty)
+      morningClicksOfDays = normalizeMap(morningClicksOfDays);
   }
 
   // Method to read all shared preferences and build the clicksOfDays map
