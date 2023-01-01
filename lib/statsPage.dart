@@ -46,7 +46,7 @@ class _StatsPageState extends State<StatsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          content: Text('This is a message'),
+          content: const Text('This is a message'),
           actions: <Widget>[
             TextButton(
               child: Text(
@@ -82,16 +82,16 @@ class _StatsPageState extends State<StatsPage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text("إحصاءات الأذكار"),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.brightness_6),
-              onPressed: () {
-                _showMessage();
-                setState(() {});
-              },
-              tooltip: 'تبديل السمة',
-            ),
-          ],
+          // actions: [
+          //   IconButton(
+          //     icon: const Icon(Icons.brightness_6),
+          //     onPressed: () {
+          //       _showMessage();
+          //       setState(() {});
+          //     },
+          //     tooltip: 'تبديل السمة',
+          //   ),
+          // ],
         ),
         body: Column(
           children: [
