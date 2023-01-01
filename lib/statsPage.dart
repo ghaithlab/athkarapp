@@ -61,6 +61,18 @@ class _StatsPageState extends State<StatsPage> {
     );
   }
 
+  showSnackMessge(String str) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Color.fromARGB(255, 45, 45, 45),
+        duration: const Duration(milliseconds: 500),
+        content: Text(
+          str,
+          style: TextStyle(color: Colors.white),
+          textAlign: TextAlign.center,
+          textDirection: TextDirection.ltr,
+        )));
+  }
+
   @override
   Widget build(BuildContext context) {
     //printer();
@@ -117,8 +129,8 @@ class _StatsPageState extends State<StatsPage> {
                         13: Colors.purple,
                       },
                       onClick: (value) {
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //     SnackBar(content: Text(value.toString())));
+                        showSnackMessge(
+                            "${value.year} - ${value.month} - ${value.day}");
                       },
                     ),
                   ],
@@ -160,8 +172,8 @@ class _StatsPageState extends State<StatsPage> {
                         13: Colors.purple,
                       },
                       onClick: (value) {
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //     SnackBar(content: Text(value.toString())));
+                        showSnackMessge(
+                            "${value.year} - ${value.month} - ${value.day}");
                       },
                     ),
                   ],

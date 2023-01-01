@@ -156,14 +156,17 @@ class HeatMapPage extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Show month labels to top of heatmap.
-                HeatMapMonthText(
-                  firstDayInfos: _firstDayInfos,
-                  margin: margin,
-                  fontSize: fontSize,
-                  fontColor: textColor,
-                  size: size,
+                SizedBox(
+                  height: 22,
                 ),
+                // Show month labels to top of heatmap.
+                // HeatMapMonthText(
+                //   firstDayInfos: _firstDayInfos,
+                //   margin: margin,
+                //   fontSize: fontSize,
+                //   fontColor: textColor,
+                //   size: size,
+                // ),
 
                 // Heatmap itself.
                 Row(

@@ -10,6 +10,24 @@ class ClicksPerDay {
 
   ClicksPerDay();
 
+  //make values from 1 to 13 for the heat map
+  Map<DateTime, int> normalizeMap(Map<DateTime, int> map) {
+    // Find the maximum value in the map
+    int maxVal = map.values.reduce(max);
+
+    // Create a new map to store the normalized values
+    Map<DateTime, int> normalizedMap = {};
+
+    // Iterate over the map and compute the percentage of each value to the max value
+    map.forEach((key, value) {
+      int normalizedValue = (value / maxVal * 13).round();
+      normalizedValue = normalizedValue < 1 ? 1 : normalizedValue;
+      normalizedMap[key] = normalizedValue;
+    });
+
+    return normalizedMap;
+  }
+
   void splitClicksOfDays() {
     morningClicksOfDays = {};
     afternoonClicksOfDays = {};
@@ -23,6 +41,10 @@ class ClicksPerDay {
         afternoonClicksOfDays[DateTime.parse(date)] = isMorningClicks['false']!;
       }
     }
+    if (afternoonClicksOfDays.isNotEmpty)
+      afternoonClicksOfDays = normalizeMap(afternoonClicksOfDays);
+    if (morningClicksOfDays.isNotEmpty)
+      morningClicksOfDays = normalizeMap(morningClicksOfDays);
   }
 
   void fillMorningEveningDummyData() {
@@ -84,8 +106,7 @@ class ClicksPerDay {
         clicksOfDays[date]![isMorning] = _prefs.getInt(key)!;
       }
     });
-
-    splitClicksOfDays();
+    if (clicksOfDays.isNotEmpty) splitClicksOfDays();
   }
 
   // Method to initialize the SharedPreferences object and read the click counts
