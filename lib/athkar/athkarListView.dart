@@ -76,23 +76,10 @@ class _AthkarListState extends State<AthkarList> {
                   checkIfFinished();
                 });
               },
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 1,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: AthkarListItem(
-                    text1: widget.athkars[index].paragraph,
-                    text2: "التكرار: ${widget.athkars[index].counter}",
-                    fontSize: widget.fontSize,
-                  ),
-                ),
+              child: AthkarListItem(
+                text1: widget.athkars[index].paragraph,
+                text2: "التكرار: ${widget.athkars[index].counter}",
+                fontSize: widget.fontSize,
               ),
             );
           },

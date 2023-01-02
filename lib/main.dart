@@ -52,8 +52,48 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
         themeMode: _themeMode,
-        theme: ThemeData(),
-        darkTheme: ThemeData.dark(),
+        theme: ThemeData().copyWith(
+          scaffoldBackgroundColor: Color(0xFFFEF8EE),
+          cardColor: Color.fromARGB(255, 247, 240, 226),
+          textTheme: ThemeData.light().textTheme.copyWith(
+                labelLarge: TextStyle(
+                    fontSize: 20, color: Color.fromARGB(222, 24, 85, 28)),
+                labelSmall: TextStyle(color: Color.fromARGB(222, 24, 85, 28)),
+              ),
+          appBarTheme: AppBarTheme(
+            titleTextStyle: TextStyle(
+                color: Color.fromARGB(222, 24, 85, 28),
+                fontSize: 18,
+                fontWeight: FontWeight.w800),
+            elevation: 1,
+            backgroundColor: Color.fromARGB(255, 247, 240, 226),
+            iconTheme: IconThemeData(color: Color.fromARGB(222, 24, 85, 28)),
+            actionsIconTheme:
+                IconThemeData(color: Color.fromARGB(222, 24, 85, 28)),
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: ButtonStyle(
+              overlayColor:
+                  MaterialStateProperty.all(Color.fromARGB(23, 85, 85, 85)),
+              foregroundColor:
+                  MaterialStatePropertyAll(Color.fromARGB(222, 24, 85, 28)),
+            ),
+          ),
+        ),
+        darkTheme: ThemeData.dark().copyWith(
+          textTheme: ThemeData.dark().textTheme.copyWith(
+                labelLarge: TextStyle(fontSize: 20, color: Colors.white),
+                labelSmall: TextStyle(color: Colors.white),
+              ),
+          textButtonTheme: TextButtonThemeData(
+            style: ButtonStyle(
+              //textStyle: MaterialStatePropertyAll(TextStyle(fontSize: 20)),
+              overlayColor:
+                  MaterialStateProperty.all(Color.fromARGB(25, 238, 238, 238)),
+              foregroundColor: MaterialStatePropertyAll(Colors.white),
+            ),
+          ),
+        ),
         // Set the theme to a dark color scheme
         debugShowCheckedModeBanner: false,
         home: AthkarPage());
