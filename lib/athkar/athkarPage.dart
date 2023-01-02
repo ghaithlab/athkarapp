@@ -66,12 +66,12 @@ class _AthkarPageState extends State<AthkarPage> {
                     padding: const EdgeInsets.only(right: 8),
                     child: TextButton(
                       style: ButtonStyle(
-                          textStyle: MaterialStateProperty.all(
-                              const TextStyle(fontSize: 20)),
-                          overlayColor:
-                              MaterialStateProperty.all(Colors.grey[600]),
-                          foregroundColor:
-                              MaterialStateProperty.all(Colors.white)),
+                        textStyle: MaterialStateProperty.all(const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w800)),
+
+                        // foregroundColor:
+                        //     MaterialStateProperty.all(Colors.white),
+                      ),
                       onPressed: (() {
                         setState(() {
                           _isMorning = !_isMorning;
@@ -80,6 +80,7 @@ class _AthkarPageState extends State<AthkarPage> {
                       }),
                       child: Text(
                         _isMorning ? 'أذكار الصباح' : "أذكار المساء",
+                        style: TextStyle(fontSize: 18),
                       ),
                     ),
                   ),
@@ -137,12 +138,19 @@ class _AthkarPageState extends State<AthkarPage> {
                           child: const Text(
                             "ض",
                             style: TextStyle(
-                              color: Colors.white,
+                              //color: Colors.white,
                               fontWeight: FontWeight.w800,
                               fontSize: 24,
                             ),
                           )),
                       TextButton(
+                        // style: Theme.of(context)
+                        //     .textButtonTheme
+                        //     .style!
+                        //     .copyWith(
+                        //         textStyle: MaterialStateProperty.all(TextStyle(
+                        //             fontWeight: FontWeight.w800,
+                        //             fontSize: 20))),
                         onPressed: () {
                           setState(() {
                             _fontSize--;
@@ -152,7 +160,7 @@ class _AthkarPageState extends State<AthkarPage> {
                         child: const Text(
                           "ض",
                           style: TextStyle(
-                            color: Colors.white,
+                            //color: Colors.white,
                             fontWeight: FontWeight.w800,
                             fontSize: 16,
                           ),

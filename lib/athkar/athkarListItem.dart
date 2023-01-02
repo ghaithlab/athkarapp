@@ -14,53 +14,72 @@ class AthkarListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 24,
-            bottom: 36,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.grey
+                : Color(0xFFC8AE91),
+            width: 1,
           ),
-          child: Center(
-            child: Text(
-              text1,
-              style: TextStyle(
-                fontSize: fontSize,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-              textDirection: TextDirection.rtl,
-            ),
-          ),
+          borderRadius: BorderRadius.circular(10),
         ),
-        Positioned(
-          bottom: -14,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.grey[700]
-                    : Colors.grey[400],
-                borderRadius: BorderRadius.circular(5),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 24,
+                bottom: 36,
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Center(
                 child: Text(
-                  text2,
-                  style: const TextStyle(fontSize: 15),
+                  text1,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    height: 1.5,
+                  ),
                   textAlign: TextAlign.center,
                   textDirection: TextDirection.rtl,
                 ),
               ),
             ),
-          ),
+            Positioned(
+              bottom: -17,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                    // color: Theme.of(context).brightness == Brightness.dark
+                    //     ? Colors.grey[700]
+                    //     : Colors.grey[400],#C8AE91
+
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey[700]
+                        : Color.fromARGB(255, 215, 197, 176),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Text(
+                      text2,
+                      style: const TextStyle(fontSize: 15),
+                      textAlign: TextAlign.center,
+                      textDirection: TextDirection.rtl,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

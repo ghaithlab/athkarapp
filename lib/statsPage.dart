@@ -94,6 +94,7 @@ class _StatsPageState extends State<StatsPage> {
           // ],
         ),
         body: Column(
+          //mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Card(
               shape: RoundedRectangleBorder(
@@ -104,16 +105,17 @@ class _StatsPageState extends State<StatsPage> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    const Text(
-                      "أذكار الصباح",
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    const SizedBox(height: 12),
+                    Text("أذكار الصباح",
+                        style: Theme.of(context).textTheme.labelLarge),
                     HeatMap(
                       scrollable: true,
                       showText: false,
                       showColorTip: false,
-                      defaultColor: Colors.grey[700],
+                      defaultColor:
+                          Theme.of(context).brightness == Brightness.dark
+                              ? Colors.grey[700]
+                              : Color.fromARGB(255, 217, 208, 193),
+                      textColor: Theme.of(context).textTheme.labelSmall!.color,
                       // startDate: DateTime(2022, 12, 1),
                       // endDate: DateTime(2022, 12, 31),
                       colorMode:
@@ -146,17 +148,19 @@ class _StatsPageState extends State<StatsPage> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       "أذكار المساء",
-                      style: TextStyle(fontSize: 20),
+                      style: Theme.of(context).textTheme.labelLarge,
                     ),
-                    const SizedBox(height: 12),
                     HeatMap(
                       scrollable: true,
                       showText: false,
                       showColorTip: false,
-                      defaultColor: Colors.grey[700],
-
+                      defaultColor:
+                          Theme.of(context).brightness == Brightness.dark
+                              ? Colors.grey[700]
+                              : Color.fromARGB(255, 217, 208, 193),
+                      textColor: Theme.of(context).textTheme.labelSmall!.color,
                       // startDate: DateTime(2022, 12, 1),
                       // endDate: DateTime(2022, 12, 31),
                       colorMode:
