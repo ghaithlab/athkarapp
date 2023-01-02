@@ -4,8 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 // import 'athkar.dart';
 // import 'athkarListView.dart';
 import 'athkar/athkarPage.dart';
+import 'notificationScheduler.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatefulWidget {
   MyApp({super.key});
@@ -24,6 +27,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
+    PrayerTimeNotificationScheduler f = PrayerTimeNotificationScheduler();
+    f.scheduleNotificationsForMonth();
+
     super.initState();
 
     SharedPreferences.getInstance().then((prefs) {
