@@ -7,8 +7,41 @@ class ClicksPerDay {
 
   Map<DateTime, int> morningClicksOfDays = {};
   Map<DateTime, int> afternoonClicksOfDays = {};
-
+  Map morningStats = {'daysCount': 0, 'consistency': 0, 'streak': 0};
+  Map eveningStats = {'daysCount': 0, 'consistency': 0, 'streak': 0};
   ClicksPerDay();
+
+  calculateStats(Map<DateTime, int> list, var mp) {
+    List<DateTime> sorted = list.keys.toList();
+    sorted.sort((a, b) => b.compareTo(a)); //sorted in reverse order
+    DateTime first = sorted.last;
+    DateTime last = sorted.first;
+    DateTime now = DateTime.now();
+    int numDays = now.difference(first).inDays + 1;
+    int streak = 1;
+
+    if (now.difference(last).inDays > 1) {
+      //there is a difference between today and last date in list more than one so streak is broken
+      streak = 0;
+    } else {
+      for (int i = 1; i < sorted.length; i++) {
+        // Calculate the difference between the current and previous key
+        int difference = sorted[i].difference(sorted[i - 1]).inDays;
+
+        // If the difference is 1, increment the streak and update the streak end date
+        if (difference == -1) {
+          streak++;
+        } else {
+          // Reset the streak if the difference is greater than 1
+          break;
+        }
+      }
+    }
+    mp['daysCount'] = sorted.length;
+    mp['consistency'] = (sorted.length / numDays * 100).ceil();
+
+    mp['streak'] = streak;
+  }
 
   //make values from 1 to 13 for the heat map
   Map<DateTime, int> normalizeMap(Map<DateTime, int> map) {
@@ -41,10 +74,14 @@ class ClicksPerDay {
         afternoonClicksOfDays[DateTime.parse(date)] = isMorningClicks['false']!;
       }
     }
-    if (afternoonClicksOfDays.isNotEmpty)
+    if (afternoonClicksOfDays.isNotEmpty) {
       afternoonClicksOfDays = normalizeMap(afternoonClicksOfDays);
-    if (morningClicksOfDays.isNotEmpty)
+      calculateStats(afternoonClicksOfDays, eveningStats);
+    }
+    if (morningClicksOfDays.isNotEmpty) {
       morningClicksOfDays = normalizeMap(morningClicksOfDays);
+      calculateStats(morningClicksOfDays, morningStats);
+    }
   }
 
   void fillMorningEveningDummyData() {

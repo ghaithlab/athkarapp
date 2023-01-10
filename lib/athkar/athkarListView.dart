@@ -28,11 +28,11 @@ class _AthkarListState extends State<AthkarList> {
     clicksPerDay.init();
   }
 
-  void printer() {
-    clicksPerDay.splitClicksOfDays();
-    print(clicksPerDay.morningClicksOfDays);
-    print(clicksPerDay.afternoonClicksOfDays);
-  }
+  // void printer() {
+  //   clicksPerDay.splitClicksOfDays();
+  //   print(clicksPerDay.morningClicksOfDays);
+  //   print(clicksPerDay.afternoonClicksOfDays);
+  // }
 
   @override
   Widget build(BuildContext context) {

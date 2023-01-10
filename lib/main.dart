@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'athkar/athkarPage.dart';
 
 void main() => runApp(MyApp());
+const fontColorLight = Color(0xFF897465);
 
 class MyApp extends StatefulWidget {
   MyApp({super.key});
@@ -56,27 +57,25 @@ class _MyAppState extends State<MyApp> {
           scaffoldBackgroundColor: Color(0xFFFEF8EE),
           cardColor: Color.fromARGB(255, 247, 240, 226),
           textTheme: ThemeData.light().textTheme.copyWith(
-                labelLarge: TextStyle(
-                    fontSize: 20, color: Color.fromARGB(222, 24, 85, 28)),
-                labelSmall: TextStyle(color: Color.fromARGB(222, 24, 85, 28)),
+                labelLarge: TextStyle(fontSize: 20, color: fontColorLight),
+                labelSmall: TextStyle(color: Color(0xFF897465)),
               ),
           appBarTheme: AppBarTheme(
             titleTextStyle: TextStyle(
-                color: Color.fromARGB(222, 24, 85, 28),
+                color: fontColorLight,
                 fontSize: 18,
                 fontWeight: FontWeight.w800),
             elevation: 1,
             backgroundColor: Color.fromARGB(255, 247, 240, 226),
-            iconTheme: IconThemeData(color: Color.fromARGB(222, 24, 85, 28)),
-            actionsIconTheme:
-                IconThemeData(color: Color.fromARGB(222, 24, 85, 28)),
+            iconTheme: IconThemeData(color: fontColorLight),
+            actionsIconTheme: IconThemeData(
+                color: fontColorLight), // Color.fromARGB(222, 24, 85, 28)
           ),
           textButtonTheme: TextButtonThemeData(
             style: ButtonStyle(
               overlayColor:
                   MaterialStateProperty.all(Color.fromARGB(23, 85, 85, 85)),
-              foregroundColor:
-                  MaterialStatePropertyAll(Color.fromARGB(222, 24, 85, 28)),
+              foregroundColor: MaterialStatePropertyAll(fontColorLight),
             ),
           ),
         ),
