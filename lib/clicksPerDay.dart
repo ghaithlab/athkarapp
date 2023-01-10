@@ -93,6 +93,16 @@ class ClicksPerDay {
       DateTime(2022, 12, 29): 200,
     };
     for (int i = 1; i <= 31; i++) {
+      var date = DateTime(2023, 1, i);
+      var value = Random().nextInt(301) + 1; // Random integer from 100 to 400
+      morningClicksOfDays[date] = value;
+    }
+    for (int i = 1; i <= 31; i++) {
+      var date = DateTime(2023, 1, i);
+      var value = Random().nextInt(301) + 1; // Random integer from 100 to 400
+      afternoonClicksOfDays[date] = value;
+    }
+    for (int i = 1; i <= 31; i++) {
       var date = DateTime(2022, 12, i);
       var value = Random().nextInt(301) + 1; // Random integer from 100 to 400
       morningClicksOfDays[date] = value;
@@ -124,10 +134,22 @@ class ClicksPerDay {
     }
     print(morningClicksOfDays);
     print(afternoonClicksOfDays);
-    if (afternoonClicksOfDays.isNotEmpty)
+    if (afternoonClicksOfDays.isNotEmpty) {
       afternoonClicksOfDays = normalizeMap(afternoonClicksOfDays);
-    if (morningClicksOfDays.isNotEmpty)
+      calculateStats(afternoonClicksOfDays, eveningStats);
+    }
+    if (morningClicksOfDays.isNotEmpty) {
       morningClicksOfDays = normalizeMap(morningClicksOfDays);
+      calculateStats(morningClicksOfDays, morningStats);
+    }
+    eveningStats['daysCount'] = 68;
+    eveningStats['consistency'] = 65;
+
+    eveningStats['streak'] = 4;
+    morningStats['daysCount'] = 68;
+    morningStats['consistency'] = 65;
+
+    morningStats['streak'] = 6;
   }
 
   // Method to read all shared preferences and build the clicksOfDays map
