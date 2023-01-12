@@ -4,8 +4,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 // import 'athkar.dart';
 // import 'athkarListView.dart';
 import 'athkar/athkarPage.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MyApp());
+}
+
 const fontColorLight = Color(0xFF897465);
 
 class MyApp extends StatefulWidget {

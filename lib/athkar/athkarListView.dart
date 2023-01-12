@@ -5,6 +5,7 @@ import 'package:flutter_vibrate/flutter_vibrate.dart';
 import '../statsPage.dart';
 import 'athkar.dart';
 import 'athkarListItem.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class AthkarList extends StatefulWidget {
   List<Athkar> athkars;
@@ -26,6 +27,7 @@ class _AthkarListState extends State<AthkarList> {
   void initState() {
     super.initState();
     clicksPerDay.init();
+    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   }
 
   // void printer() {
@@ -51,7 +53,7 @@ class _AthkarListState extends State<AthkarList> {
               widget.removedItems.add(widget.athkars[0]);
 
               widget.athkars.removeAt(0);
-              checkIfFinished();
+              checkIfFinished(widget.removedItems.last);
             }
           });
         }
@@ -73,7 +75,7 @@ class _AthkarListState extends State<AthkarList> {
                   widget.removedItems.add(widget.athkars[index]);
 
                   widget.athkars.removeAt(index);
-                  checkIfFinished();
+                  checkIfFinished(widget.removedItems.last);
                 });
               },
               child: AthkarListItem(
@@ -97,10 +99,25 @@ class _AthkarListState extends State<AthkarList> {
     return;
   }
 
-  void checkIfFinished() {
-    if (widget.athkars.isEmpty)
+  void checkIfFinished(Athkar thekir) async {
+    //log firebase even that an item was removed
+    await FirebaseAnalytics.instance.logEvent(
+      name: "single_thikir_done",
+      parameters: {
+        "athkar": widget.isMorning ? "morning" : "evening",
+        "full_text": thekir.paragraph,
+      },
+    );
+    if (widget.athkars.isEmpty) {
+      await FirebaseAnalytics.instance.logEvent(
+        name: "Athkar_done",
+        parameters: {
+          "athkar": widget.isMorning ? "morning" : "evening",
+        },
+      );
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return StatsPage();
       }));
+    }
   }
 }

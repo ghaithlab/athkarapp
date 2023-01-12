@@ -1,4 +1,5 @@
 import 'package:athkarapp/clicksPerDay.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import "package:flutter/material.dart";
 
 import 'heatMapWidget/data/heatmap_color_mode.dart';
@@ -39,6 +40,18 @@ class _StatsPageState extends State<StatsPage> {
       morningStats = clicksPerDay.morningStats;
       eveningStats = clicksPerDay.eveningStats;
     });
+    // {'daysCount': 0, 'consistency': 0, 'streak': 0};
+    await FirebaseAnalytics.instance.logEvent(
+      name: "report_shown",
+      parameters: {
+        "morning_consistency": clicksPerDay.morningClicksOfDays['consistency'],
+        "morning_days_count": clicksPerDay.morningClicksOfDays['daysCount'],
+        "morning_streak": clicksPerDay.morningClicksOfDays['streak'],
+        "evening_consistency": clicksPerDay.eveningStats['consistency'],
+        "evening_days_count": clicksPerDay.eveningStats['daysCount'],
+        "evening_streak": clicksPerDay.eveningStats['streak'],
+      },
+    );
   }
 
   void printer() {

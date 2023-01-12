@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>306418123724-r111qe7igvr3op2pfh7dinfpfs40rqrl.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.306418123724-r111qe7igvr3op2pfh7dinfpfs40rqrl</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDQXzfPY4HZ_VG3fV9MLIRfX7nty-eL8O8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>306418123724</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.athkarapp</string>
+	<key>PROJECT_ID</key>
+	<string>muslimshabits</string>
+	<key>STORAGE_BUCKET</key>
+	<string>muslimshabits.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:306418123724:ios:883edaa3ae2ba35ae65369</string>
+</dict>
+</plist>

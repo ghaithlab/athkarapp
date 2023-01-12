@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "306418123724",
+    "project_id": "muslimshabits",
+    "storage_bucket": "muslimshabits.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:306418123724:android:30162dc3424022fee65369",
+        "android_client_info": {
+          "package_name": "com.labisoft.athkar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "306418123724-hfg1g93oo4uvd2qjchajr21pvej0b8rl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7gQm9fcOQl1P2uyBqcrLTlxFWLwWj05Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "306418123724-hfg1g93oo4uvd2qjchajr21pvej0b8rl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "306418123724-ad6h3attvhkngikc8tp4oi1djn1urm8l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.labisoft.athkar"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
