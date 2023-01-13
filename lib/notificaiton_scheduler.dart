@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class PrayerTimeNotificationScheduler {
   Future<Position> getCurrentLocation() async {
@@ -80,4 +84,98 @@ class PrayerTimeNotificationScheduler {
   }
 
   void scheduleNotifications() async {}
+}
+
+class NotificationsApi {
+  static final _notifications = FlutterLocalNotificationsPlugin();
+
+  static void init() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('mipmap/ic_launcher');
+
+    // final IOSInitializationSettings initializationSettingsIOS =
+    //     const IOSInitializationSettings(
+    //         requestAlertPermission: true,
+    //         requestBadgePermission: true,
+    //         requestSoundPermission: true,
+    //         onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+
+    // final MacOSInitializationSettings initializationSettingsMacOS =
+    //     const MacOSInitializationSettings();
+
+    final InitializationSettings initializationSettings =
+        InitializationSettings(
+      android: initializationSettingsAndroid,
+      //  iOS: initializationSettingsIOS,
+      //  macOS: initializationSettingsMacOS,
+    );
+
+    await _notifications.initialize(initializationSettings);
+  }
+
+  static Future showNotification(
+          {int id = 0, String? title, String? body, String? payload}) async =>
+      _notifications.show(id, title, body, await _notificationDetails(),
+          payload: payload);
+
+  static Future _notificationDetails() async {
+    return NotificationDetails(
+      android: AndroidNotificationDetails(
+        'channel id',
+        'channel name',
+        //channelDescription: 'chennel description',
+        importance: Importance.max,
+      ),
+      iOS: DarwinNotificationDetails(),
+    );
+  }
+
+  static Future<bool> isAndroidPermissionGranted() async {
+    bool granted = false;
+    if (Platform.isAndroid) {
+      granted = await _notifications
+              .resolvePlatformSpecificImplementation<
+                  AndroidFlutterLocalNotificationsPlugin>()
+              ?.areNotificationsEnabled() ??
+          false;
+
+      // setState(() {
+      //   _notificationsEnabled = granted;
+      // });
+    }
+    return granted;
+  }
+
+  static Future<bool> requestPermissions() async {
+    bool? granted = false;
+    if (Platform.isIOS || Platform.isMacOS) {
+      // await _notifications
+      //     .resolvePlatformSpecificImplementation<
+      //         IOSFlutterLocalNotificationsPlugin>()
+      //     ?.requestPermissions(
+      //       alert: true,
+      //       badge: true,
+      //       sound: true,
+      //     );
+      // await _notifications
+      //     .resolvePlatformSpecificImplementation<
+      //         MacOSFlutterLocalNotificationsPlugin>()
+      //     ?.requestPermissions(
+      //       alert: true,
+      //       badge: true,
+      //       sound: true,
+      //     );
+    } else if (Platform.isAndroid) {
+      final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+          _notifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+
+      granted = await androidImplementation?.requestPermission();
+
+      // setState(() {
+      //   _notificationsEnabled = granted ?? false;
+      // });
+    }
+    return granted ?? false;
+  }
 }
