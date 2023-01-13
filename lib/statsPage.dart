@@ -44,9 +44,9 @@ class _StatsPageState extends State<StatsPage> {
     await FirebaseAnalytics.instance.logEvent(
       name: "report_shown",
       parameters: {
-        "morning_consistency": clicksPerDay.morningClicksOfDays['consistency'],
-        "morning_days_count": clicksPerDay.morningClicksOfDays['daysCount'],
-        "morning_streak": clicksPerDay.morningClicksOfDays['streak'],
+        "morning_consistency": clicksPerDay.morningStats['consistency'],
+        "morning_days_count": clicksPerDay.morningStats['daysCount'],
+        "morning_streak": clicksPerDay.morningStats['streak'],
         "evening_consistency": clicksPerDay.eveningStats['consistency'],
         "evening_days_count": clicksPerDay.eveningStats['daysCount'],
         "evening_streak": clicksPerDay.eveningStats['streak'],
