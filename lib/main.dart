@@ -1,11 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-// import 'athkar.dart';
-// import 'athkarListView.dart';
+
 import 'athkar/athkarPage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'notificaiton_scheduler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,9 +33,50 @@ class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.dark;
   late SharedPreferences _prefs;
 
+  // void _showMessage(List<Object> lst) {
+  //   //clicksPerDay.fillMorningEveningDummyData();
+  //   String x = "";
+  //   for (var day in lst) {
+  //     x += "${day},   ";
+  //   }
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         content: const Text('This is a message'),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             child: Text(x),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
+  void getPrayerTimes() async {
+    String lat = "";
+    String long = "";
+    PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
+    p.getCurrentLocation().then((value) {
+      lat = '${value.latitude}';
+      long = '${value.longitude}';
+      p.getPrayertimes(lat, long).then((value) {
+        // _showMessage(p.dates);
+
+        print(p.dates);
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+
+    getPrayerTimes();
 
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
