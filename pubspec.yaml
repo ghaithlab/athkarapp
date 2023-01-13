@@ -43,6 +43,7 @@ dependencies:
   geolocator: ^9.0.2
   http: ^0.13.5
   intl: ^0.18.0
+  flutter_local_notifications: ^13.0.0
 
 
 dev_dependencies:

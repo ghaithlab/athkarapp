@@ -60,16 +60,26 @@ class _MyAppState extends State<MyApp> {
   void getPrayerTimes() async {
     String lat = "";
     String long = "";
-    PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
-    p.getCurrentLocation().then((value) {
-      lat = '${value.latitude}';
-      long = '${value.longitude}';
-      p.getPrayertimes(lat, long).then((value) {
-        // _showMessage(p.dates);
+    NotificationsApi.init();
+    bool x = await NotificationsApi.isAndroidPermissionGranted();
+    if (x)
+      NotificationsApi.showNotification(
+          title: "title", body: "body", payload: "payload");
+    else if (await NotificationsApi.requestPermissions()) {
+      NotificationsApi.showNotification(
+          title: "title", body: "body", payload: "payload");
+    }
 
-        print(p.dates);
-      });
-    });
+    // PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
+    // p.getCurrentLocation().then((value) {
+    //   lat = '${value.latitude}';
+    //   long = '${value.longitude}';
+    //   p.getPrayertimes(lat, long).then((value) {
+    //     // _showMessage(p.dates);
+
+    //     print(p.dates);
+    //   });
+    // });
   }
 
   @override
