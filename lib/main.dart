@@ -8,6 +8,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'notificaiton_scheduler.dart';
 
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+import 'dart:core';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -57,29 +61,9 @@ class _MyAppState extends State<MyApp> {
   //   );
   // }
 
-  void getPrayerTimes() async {
-    String lat = "";
-    String long = "";
-    NotificationsApi.init();
-    bool x = await NotificationsApi.isAndroidPermissionGranted();
-    if (x)
-      NotificationsApi.showNotification(
-          title: "title", body: "body", payload: "payload");
-    else if (await NotificationsApi.requestPermissions()) {
-      NotificationsApi.showNotification(
-          title: "title", body: "body", payload: "payload");
-    }
-
-    // PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
-    // p.getCurrentLocation().then((value) {
-    //   lat = '${value.latitude}';
-    //   long = '${value.longitude}';
-    //   p.getPrayertimes(lat, long).then((value) {
-    //     // _showMessage(p.dates);
-
-    //     print(p.dates);
-    //   });
-    // });
+  Future getPrayerTimes() async {
+    PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
+    p.scheduleNotifications();
   }
 
   @override
