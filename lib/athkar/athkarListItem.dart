@@ -1,3 +1,4 @@
+import 'package:athkarapp/main.dart';
 import "package:flutter/material.dart";
 
 class AthkarListItem extends StatelessWidget {
@@ -18,6 +19,7 @@ class AthkarListItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Container(
         decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           border: Border.all(
             color: Theme.of(context).brightness == Brightness.dark
                 ? Colors.grey
@@ -60,16 +62,21 @@ class AthkarListItem extends StatelessWidget {
                     //     : Colors.grey[400],#C8AE91
 
                     color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.grey[700]
-                        : Color.fromARGB(255, 215, 197, 176),
-                    borderRadius: BorderRadius.circular(5),
+                        //? Colors.grey[700]
+                        //: Color.fromARGB(255, 215, 197, 176),
+                        ? Color(0xFFF6DAAE)
+                        : Color(0xFFF6DAAE),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Padding(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                     child: Text(
                       text2,
-                      style: const TextStyle(fontSize: 15),
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: fontColorLight,
+                          fontWeight: FontWeight.w700),
                       textAlign: TextAlign.center,
                       textDirection: TextDirection.rtl,
                     ),

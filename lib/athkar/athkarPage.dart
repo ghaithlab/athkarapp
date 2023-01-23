@@ -1,5 +1,7 @@
 import 'package:athkarapp/main.dart';
+import 'package:athkarapp/notificaiton_scheduler.dart';
 import 'package:athkarapp/statsPage.dart';
+import 'package:flutter/services.dart';
 
 //import '../selectableButton.dart';
 import 'athkar.dart';
@@ -23,6 +25,87 @@ class _AthkarPageState extends State<AthkarPage> {
   String pressedText = "أذكار الصباح";
 //testing
 //testing 2
+
+  Future<bool> _showMessage(String msg, String title) async {
+    bool result = false;
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 28,
+            ),
+            textDirection: TextDirection.rtl,
+          ),
+          content: Text(
+            msg,
+            style: const TextStyle(
+              fontSize: 18,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.right,
+            textDirection: TextDirection.rtl,
+          ),
+          actions: [
+            Directionality(
+              textDirection: TextDirection.rtl,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8, left: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      child: Text("استخدام الموقع"),
+                      onPressed: () {
+                        Navigator.of(context).pop(true);
+                      },
+                    ),
+                    TextButton(
+                      child: Text("تخطي"),
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
+        );
+      },
+    ).then((value) {
+      result = value;
+    });
+    return result;
+  }
+
+  Future getPrayerTimes() async {
+    var scheduleNotif;
+
+    //var scheduleNotif = _prefs.getBool('scheduleNotif');
+    if (scheduleNotif == null) {
+      // first time app open
+      if (await _showMessage(
+          "يحتاج التطبيق إلى معرفة الموقع لحساب أوقات الصلاة ليقوم بإظهار إشعارات تذكير بالأذكار بأوقاتها المستحبة وهي بين صلاة الفجر وطلوع الشمس لأذكار الصباح و بين صلاة العصر وغروب الشمس لأذكار المساء، هل تريد جدولة الإشعارات؟",
+          "إذن استخدام الموقع")) {
+        //ok button clicked
+        PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
+        p.scheduleNotifications().onError(
+            (error, stackTrace) => _showMessage(error.toString(), "خطأ"));
+        _prefs.setBool('scheduleNotif', true);
+      } else {
+        //no button clicked
+        _prefs.setBool('scheduleNotif', false);
+      }
+    } else if (scheduleNotif == true) {
+      PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
+      p.scheduleNotifications().onError(
+          (error, stackTrace) => _showMessage(error.toString(), "خطأ"));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -42,6 +125,7 @@ class _AthkarPageState extends State<AthkarPage> {
       setState(() {
         _prefs = prefs;
         _fontSize = _prefs.getDouble('fontSize') ?? 20;
+        getPrayerTimes();
       });
     });
   }

@@ -20,7 +20,8 @@ void main() async {
   runApp(MyApp());
 }
 
-const fontColorLight = Color(0xFF897465);
+//const fontColorLight = Color(0xFF897465);
+const fontColorLight = Color(0xFF964F36);
 
 class MyApp extends StatefulWidget {
   MyApp({super.key});
@@ -37,40 +38,9 @@ class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.dark;
   late SharedPreferences _prefs;
 
-  // void _showMessage(List<Object> lst) {
-  //   //clicksPerDay.fillMorningEveningDummyData();
-  //   String x = "";
-  //   for (var day in lst) {
-  //     x += "${day},   ";
-  //   }
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         content: const Text('This is a message'),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             child: Text(x),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-  Future getPrayerTimes() async {
-    PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
-    p.scheduleNotifications();
-  }
-
   @override
   void initState() {
     super.initState();
-
-    getPrayerTimes();
 
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
@@ -102,14 +72,24 @@ class _MyAppState extends State<MyApp> {
           scaffoldBackgroundColor: Color(0xFFFEF8EE),
           cardColor: Color.fromARGB(255, 247, 240, 226),
           textTheme: ThemeData.light().textTheme.copyWith(
-                labelLarge: TextStyle(fontSize: 20, color: fontColorLight),
-                labelSmall: TextStyle(color: Color(0xFF897465)),
+                labelLarge: const TextStyle(
+                  fontSize: 20,
+                  color: fontColorLight,
+                  fontWeight: FontWeight.w700,
+                ),
+                // labelSmall: TextStyle(color: Color(0xFF897465)),
+                labelSmall: const TextStyle(
+                  color: fontColorLight,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-          appBarTheme: AppBarTheme(
+          appBarTheme: const AppBarTheme(
             titleTextStyle: TextStyle(
-                color: fontColorLight,
-                fontSize: 18,
-                fontWeight: FontWeight.w800),
+              color: fontColorLight,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+            ),
             elevation: 1,
             backgroundColor: Color.fromARGB(255, 247, 240, 226),
             iconTheme: IconThemeData(color: fontColorLight),
@@ -129,6 +109,7 @@ class _MyAppState extends State<MyApp> {
                 labelLarge: TextStyle(fontSize: 20, color: Colors.white),
                 labelSmall: TextStyle(color: Colors.white),
               ),
+          cardColor: Color(0xFF3A3A3A),
           textButtonTheme: TextButtonThemeData(
             style: ButtonStyle(
               //textStyle: MaterialStatePropertyAll(TextStyle(fontSize: 20)),

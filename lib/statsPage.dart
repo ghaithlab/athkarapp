@@ -6,7 +6,6 @@ import 'heatMapWidget/data/heatmap_color_mode.dart';
 import 'heatMapWidget/heatmap.dart';
 
 import 'package:flutter/animation.dart';
-import 'package:flutter/material.dart';
 
 class StatsPage extends StatefulWidget {
   const StatsPage({super.key});
@@ -98,7 +97,7 @@ class _StatsPageState extends State<StatsPage> {
   @override
   Widget build(BuildContext context) {
     //printer();
-    //clicksPerDay.fillMorningEveningDummyData();
+    clicksPerDay.fillMorningEveningDummyData();
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -120,8 +119,13 @@ class _StatsPageState extends State<StatsPage> {
             //mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Card(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? null
+                    : Color(0xFFFFFFFF),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.0)),
+                  side: BorderSide(color: Color(0xFFE1D2CC)),
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
                 margin: const EdgeInsets.all(20),
                 elevation: 1,
                 child: Padding(
@@ -131,6 +135,12 @@ class _StatsPageState extends State<StatsPage> {
                       Text("أذكار الصباح",
                           style: Theme.of(context).textTheme.labelLarge),
                       StatsRow(mp: clicksPerDay.morningStats),
+                      SizedBox(
+                        height: 4,
+                      ),
+                      Divider(
+                        thickness: 1,
+                      ),
                       HeatMap(
                         scrollable: true,
                         showText: false,
@@ -138,7 +148,8 @@ class _StatsPageState extends State<StatsPage> {
                         defaultColor:
                             Theme.of(context).brightness == Brightness.dark
                                 ? Colors.grey[700]
-                                : Color.fromARGB(255, 217, 208, 193),
+                                //: Color.fromARGB(255, 217, 208, 193),
+                                : Color(0xFFEEEEEE),
                         textColor:
                             Theme.of(context).textTheme.labelSmall!.color,
                         // startDate: DateTime(2022, 12, 1),
@@ -147,7 +158,8 @@ class _StatsPageState extends State<StatsPage> {
                             isOpacityMode ? ColorMode.opacity : ColorMode.color,
                         datasets: clicksPerDay.morningClicksOfDays,
                         colorsets: {
-                          1: Colors.red[400]!,
+                          //1: Colors.red[400]!,
+                          1: Color(0xFFFFD89B),
                           3: Colors.orange,
                           5: Colors.yellow,
                           7: Colors.green,
@@ -165,7 +177,11 @@ class _StatsPageState extends State<StatsPage> {
                 ),
               ),
               Card(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? null
+                    : Color(0xFFFFFFFF),
                 shape: RoundedRectangleBorder(
+                    side: BorderSide(color: Color(0xFFE1D2CC)),
                     borderRadius: BorderRadius.circular(16.0)),
                 margin: const EdgeInsets.all(20),
                 elevation: 1,
@@ -178,6 +194,12 @@ class _StatsPageState extends State<StatsPage> {
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
                       StatsRow(mp: clicksPerDay.eveningStats),
+                      SizedBox(
+                        height: 4,
+                      ),
+                      Divider(
+                        thickness: 1,
+                      ),
                       HeatMap(
                         scrollable: true,
                         showText: false,
@@ -185,7 +207,8 @@ class _StatsPageState extends State<StatsPage> {
                         defaultColor:
                             Theme.of(context).brightness == Brightness.dark
                                 ? Colors.grey[700]
-                                : Color.fromARGB(255, 217, 208, 193),
+                                //: Color.fromARGB(255, 217, 208, 193),
+                                : Color(0xFFEEEEEE),
                         textColor:
                             Theme.of(context).textTheme.labelSmall!.color,
                         // startDate: DateTime(2022, 12, 1),
@@ -194,7 +217,8 @@ class _StatsPageState extends State<StatsPage> {
                             isOpacityMode ? ColorMode.opacity : ColorMode.color,
                         datasets: clicksPerDay.afternoonClicksOfDays,
                         colorsets: {
-                          1: Colors.yellow[600]!,
+                          //1: Colors.yellow[600]!,
+                          1: Color(0xFF73CABA),
                           3: Colors.orange,
                           5: Colors.yellow,
                           7: Colors.green,
@@ -232,7 +256,7 @@ class StatsRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Padding(
             padding: const EdgeInsets.only(right: 8),
@@ -249,7 +273,7 @@ class StatsRow extends StatelessWidget {
                     style: Theme.of(context)
                         .textTheme
                         .labelLarge!
-                        .copyWith(fontSize: 28)),
+                        .copyWith(fontSize: 24)),
                 Text("الأيام",
                     style: Theme.of(context)
                         .textTheme
@@ -266,7 +290,7 @@ class StatsRow extends StatelessWidget {
                     style: Theme.of(context)
                         .textTheme
                         .labelLarge!
-                        .copyWith(fontSize: 28)),
+                        .copyWith(fontSize: 24)),
                 // NumberCounter(
                 //     startValue: 0,
                 //     endValue: clicksPerDay.eveningStats['consistency'],
@@ -301,7 +325,7 @@ class StatsRow extends StatelessWidget {
                         style: Theme.of(context)
                             .textTheme
                             .labelLarge!
-                            .copyWith(fontSize: 28)),
+                            .copyWith(fontSize: 24)),
                     SizedBox(
                       width: 3,
                     ),

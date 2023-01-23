@@ -17,207 +17,241 @@ class PrayerTimeNotificationScheduler {
   Future init() async {
     String lat = "";
     String long = "";
-    Position p = await getCurrentLocation();
-    lat = '${p.latitude}';
-    long = '${p.longitude}';
-    await getPrayertimes(lat, long);
+    Position p;
+    try {
+      p = await getCurrentLocation();
+      lat = '${p.latitude}';
+      long = '${p.longitude}';
+      await getPrayertimes(lat, long);
+    } catch (e) {
+      print(e);
+      return Future.error(e);
+    }
     // _showMessage(p.dates);
-
-    print(dates);
   }
 
   Future<Position> getCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      return Future.error('location service is disabled');
+      return Future.error('الموقع مقفل من الجوال.');
+      //return Future.error('location service is disabled');
     }
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        return Future.error('Location Permissions are denied');
+        return Future.error('لم يتم إعطاء صلاحيات الموقع للتطبيق');
+        //return Future.error('Location Permissions are denied');
       }
     }
     if (permission == LocationPermission.deniedForever) {
       return Future.error(
-          "Location permissions are parmenently denied, we cannont request permissions");
+          "لم يتم إعطاء صلاحيات الموقع للتطبيق، تحتاج لإعطاء الصلاحيات من اعدادات الجوال");
+      //return Future.error("Location permissions are parmenently denied, we cannont request permissions");
     }
     return await Geolocator.getCurrentPosition();
   }
 
   List<tz.TZDateTime> dates = [];
-  Future<void> getPrayertimes(String latitude, String longitude) async {
+
+  Future getPrayertimes(String latitude, String longitude) async {
     String url =
         'https://api.aladhan.com/v1/calendar?latitude=$latitude&longitude=$longitude&month=${DateTime.now().month}&year=${DateTime.now().year}';
 
     // Make the HTTP GET request to the API
-    var response = await http.get(Uri.parse(url));
+    try {
+      var response = await http.get(Uri.parse(url));
 
-    // Check the status code of the response
-    if (response.statusCode == 200) {
-      // If the call to the API was successful, parse the JSON response
-      var data = json.decode(response.body);
+      // Check the status code of the response
+      if (response.statusCode == 200) {
+        // If the call to the API was successful, parse the JSON response
+        var data = json.decode(response.body);
 
-      // Get the list of days from the JSON data
-      List days = data['data'];
-      // Iterate through the list of days
-      for (var day in days) {
-        // Get the Fajr time for the day
-        String date = day['date']['gregorian']['date'];
-        String fajrTime = day['timings']['Fajr'];
-        var dd = DateFormat('dd-MM-yyyy').parse(date);
-        if (dd.isAfter(DateTime.now()) &&
-            dd.isBefore(DateTime.now().add(Duration(days: 2)))) {
-          //var timeFajr = DateFormat.Hm().parse(fajrTime);
-          // tz.TZDateTime tzFajr = tz.TZDateTime.utc(
-          //   dd.year,
-          //   dd.month,
-          //   dd.day,
-          //   timeFajr.hour,
-          //   timeFajr.minute,
-          // ).add(
-          //   Duration(minutes: 30),
-          // );
+        // Get the list of days from the JSON data
+        List days = data['data'];
+        // Iterate through the list of days
+        for (var day in days) {
+          // Get the Fajr time for the day
+          String date = day['date']['gregorian']['date'];
+          String fajrTime = day['timings']['Fajr'];
+          var dd = DateFormat('dd-MM-yyyy').parse(date);
+          if (dd.isAfter(DateTime.now().subtract(Duration(days: 1))) &&
+              dd.isBefore(DateTime.now().add(Duration(days: 2)))) {
+            //var timeFajr = DateFormat.Hm().parse(fajrTime);
+            // tz.TZDateTime tzFajr = tz.TZDateTime.utc(
+            //   dd.year,
+            //   dd.month,
+            //   dd.day,
+            //   timeFajr.hour,
+            //   timeFajr.minute,
+            // ).add(
+            //   Duration(minutes: 30),
+            // );
 
-          fajrTime = fajrTime.substring(
-              0,
-              fajrTime.indexOf(
-                  " ")); //the string format is 05:12 (+x) we want to remove the (+x)
-          // Parse the Fajr time into a DateTime object
+            fajrTime = fajrTime.substring(
+                0,
+                fajrTime.indexOf(
+                    " ")); //the string format is 05:12 (+x) we want to remove the (+x)
+            // Parse the Fajr time into a DateTime object
 
-          DateTime fajrDateTime =
-              DateFormat('dd-MM-yyyy HH:mm').parse('$date $fajrTime');
-          // Add 30 minutes to the Fajr time to get the notification time
-          DateTime fajrNotificationDateTime =
-              fajrDateTime.add(Duration(minutes: 30));
-          tz.TZDateTime tzFajr = tz.TZDateTime.from(
-            fajrNotificationDateTime,
-            tz.local,
-          );
+            DateTime fajrDateTime =
+                DateFormat('dd-MM-yyyy HH:mm').parse('$date $fajrTime');
+            // Add 30 minutes to the Fajr time to get the notification time
+            DateTime fajrNotificationDateTime =
+                fajrDateTime.add(Duration(minutes: 30));
+            tz.TZDateTime tzFajr = tz.TZDateTime.from(
+              fajrNotificationDateTime,
+              tz.local,
+            );
 
-// Schedule a notification for the Fajr time
-          dates.add(tzFajr);
+            // Schedule a notification for the Fajr time
+            dates.add(tzFajr);
 
-// Get the Asr time for the day
-          String s = day['timings']['Asr'];
+            // Get the Asr time for the day
+            String s = day['timings']['Asr'];
 
-          s = s.substring(
-              0,
-              s.indexOf(
-                  " ")); //the string format is 05:12 (+x) we want to remove the (+x)Parse the Asr time into a DateTime object
-          DateTime asrDateTime =
-              DateFormat('dd-MM-yyyy HH:mm').parse('$date $s');
+            s = s.substring(
+                0,
+                s.indexOf(
+                    " ")); //the string format is 05:12 (+x) we want to remove the (+x)Parse the Asr time into a DateTime object
+            DateTime asrDateTime =
+                DateFormat('dd-MM-yyyy HH:mm').parse('$date $s');
 
-// Add 30 minutes to the Asr time to get the notification time
-          DateTime asrNotificationDateTime =
-              asrDateTime.add(Duration(minutes: 30));
+            // Add 30 minutes to the Asr time to get the notification time
+            DateTime asrNotificationDateTime =
+                asrDateTime.add(Duration(minutes: 30));
 
-          tz.TZDateTime tzAsr = tz.TZDateTime.from(
-            asrNotificationDateTime,
-            tz.local,
-          );
+            tz.TZDateTime tzAsr = tz.TZDateTime.from(
+              asrNotificationDateTime,
+              tz.local,
+            );
 
-          dates.add(tzAsr);
+            dates.add(tzAsr);
+
+            //mghrib**********************************************************************
+            //           s = day['timings']['Maghrib'];
+
+            //           s = s.substring(
+            //               0,
+            //               s.indexOf(
+            //                   " ")); //the string format is 05:12 (+x) we want to remove the (+x)Parse the Asr time into a DateTime object
+            //           asrDateTime = DateFormat('dd-MM-yyyy HH:mm').parse('$date $s');
+
+            // // Add 30 minutes to the Asr time to get the notification time
+            //           asrNotificationDateTime = asrDateTime.add(Duration(minutes: 30));
+
+            //           tzAsr = tz.TZDateTime.from(
+            //             asrNotificationDateTime,
+            //             tz.local,
+            //           );
+
+            //           dates.add(tzAsr);
+            //isha**********************************************************************
+            //           s = day['timings']['Isha'];
+
+            //           s = s.substring(
+            //               0,
+            //               s.indexOf(
+            //                   " ")); //the string format is 05:12 (+x) we want to remove the (+x)Parse the Asr time into a DateTime object
+            //           asrDateTime = DateFormat('dd-MM-yyyy HH:mm').parse('$date $s');
+
+            // // Add 30 minutes to the Asr time to get the notification time
+            //           asrNotificationDateTime = asrDateTime.add(Duration(minutes: 30));
+
+            //           tzAsr = tz.TZDateTime.from(
+            //             asrNotificationDateTime,
+            //             tz.local,
+            //           );
+
+            //           dates.add(tzAsr);
+          }
         }
+        print(dates);
       }
-      print(dates);
+    } on Exception catch (e) {
+      print(e);
+      return Future.error("تعذر قراءة أوقات الصلاة، تأكد من الاتصال بالانترنت");
+      // TODO
     }
   }
 
-  void scheduleNotifications() async {
-    NotificationsApi.init();
+  Future scheduleNotifications() async {
+    try {
+      NotificationsApi.init();
 
-    int scheduledNotifications =
-        await NotificationsApi.listScheduledNotifications();
-    // await NotificationsApi.clear();
-    // scheduledNotifications =
-    //     await NotificationsApi.listScheduledNotifications();
-    // var dd = DateTime.now();
+      int scheduledNotifications =
+          await NotificationsApi.listScheduledNotifications();
+      // await NotificationsApi.clear();
+      // scheduledNotifications =
+      //     await NotificationsApi.listScheduledNotifications();
+      // var dd = DateTime.now();
 
-    // await NotificationsApi.schedule(
-    //   title: "title",
-    //   body: "from",
-    //   payload: "payload",
-    //   time: tz.TZDateTime.now(tz.local).add(const Duration(seconds: 20)),
-    // );
-    //NotificationsApi.clear();
-    //var dd = DateTime.now().add(Duration(seconds: 20));
-    // DateTime dd = DateFormat('dd-MM-yyyy HH:mm')
-    //     .parse('14-1-2023 11:55')
-    //     .add(Duration(seconds: 20));
-    // await NotificationsApi.schedule(
-    //   id: 15,
-    //   title: "تذكير بالأذكار",
-    //   body: "from test",
-    //   payload: "payload",
-    //   time: tz.TZDateTime.from(dd, tz.local).add(Duration(seconds: 20)),
-    // );
-    // await NotificationsApi.schedule(
-    //   id: 16,
-    //   title: "تذكير بالأذكار",
-    //   body: "from test",
-    //   payload: "payload",
-    //   time: tz.TZDateTime.from(dd, tz.local).add(Duration(seconds: 30)),
-    // );
-    // await NotificationsApi.schedule(
-    //   id: 17,
-    //   title: "تذكير بالأذكار",
-    //   body: "from test",
-    //   payload: "payload",
-    //   time: tz.TZDateTime.from(dd, tz.local).add(Duration(seconds: 40)),
-    // );
-    // await NotificationsApi.schedule(
-    //   title: "title",
-    //   body: "utc",
-    //   payload: "payload",
-    //   time: tz.TZDateTime.utc(
-    //           dd.year, dd.month, dd.day, dd.hour, dd.minute, dd.second)
-    //       .add(const Duration(seconds: 25)),
-    // );
-//if (scheduledNotifications == 0)
-    if (scheduledNotifications == 0) {
-      await init();
-      bool x = await NotificationsApi.isAndroidPermissionGranted();
-      if (x) {
-        // NotificationsApi.showNotification(
-        //     title: "title", body: "body", payload: "payload");
-        // await NotificationsApi.schedule(
-        //   id: 1,
-        //   title: "title",
-        //   body: "body",
-        //   payload: "payload",
-        //   time: DateTime.now(),
-        // );
-        for (int i = 0; i < dates.length; i++)
-          await NotificationsApi.schedule(
-            id: i,
-            title: "تذكير بالأذكار",
-            body:
-                "(الَّذِينَ آمَنُواْ وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ أَلاَ بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ)",
-            payload: "payload",
-            time: dates[i],
-          );
-      } else if (await NotificationsApi.requestPermissions()) {
-        for (int i = 0; i < dates.length; i++)
-          await NotificationsApi.schedule(
-            id: i,
-            title: "تذكير بالأذكار",
-            body:
-                "(الَّذِينَ آمَنُواْ وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ أَلاَ بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ)",
-            payload: "payload",
-            time: dates[i],
-          );
-        // NotificationsApi.showNotification(
-        //     title: "title", body: "body", payload: "payload");
-        // await NotificationsApi.schedule(
-        //   title: "title",
-        //   body: "body",
-        //   payload: "payload",
-        //   time: tz.TZDateTime.now(tz.local).add(const Duration(seconds: 20)),
-        // );
+      // await NotificationsApi.schedule(
+      //   title: "title",
+      //   body: "from",
+      //   payload: "payload",
+      //   time: tz.TZDateTime.now(tz.local).add(const Duration(seconds: 20)),
+      // );
+      NotificationsApi.clear();
+      // var dd = DateTime.now().add(Duration(seconds: 20));
+      // // DateTime dd = DateFormat('dd-MM-yyyy HH:mm')
+      // //     .parse('14-1-2023 11:55')
+      // //     .add(Duration(seconds: 20));
+      // await NotificationsApi.schedule(
+      //   id: 150,
+      //   title: "تذكير بالأذكار",
+      //   body: "from test1 - 5m",
+      //   payload: "payload",
+      //   time: tz.TZDateTime.from(dd, tz.local).add(Duration(minutes: 3)),
+      // );
+      // await NotificationsApi.schedule(
+      //   id: 160,
+      //   title: "تذكير بالأذكار",
+      //   body: "from test2 - 10m",
+      //   payload: "payload",
+      //   time: tz.TZDateTime.from(dd, tz.local).add(Duration(minutes: 7)),
+      // );
+      // await NotificationsApi.schedule(
+      //   id: 170,
+      //   title: "تذكير بالأذكار",
+      //   body: "from test3 - 15m",
+      //   payload: "payload",
+      //   time: tz.TZDateTime.from(dd, tz.local).add(Duration(minutes: 12)),
+      // );
 
+      //if (scheduledNotifications == 0)
+      if (true) {
+        await init();
+        bool x = await NotificationsApi.isAndroidPermissionGranted();
+        if (x) {
+          for (int i = 0; i < dates.length; i++) {
+            await NotificationsApi.schedule(
+              id: i,
+              title: "تذكير بالأذكار",
+              body:
+                  "(الَّذِينَ آمَنُواْ وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ أَلاَ بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ)",
+              payload: "payload",
+              time: dates[i],
+            );
+          }
+        } else if (await NotificationsApi.requestPermissions()) {
+          for (int i = 0; i < dates.length; i++) {
+            await NotificationsApi.schedule(
+              id: i,
+              title: "تذكير بالأذكار",
+              body:
+                  "(الَّذِينَ آمَنُواْ وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ أَلاَ بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ)",
+              payload: "payload",
+              time: dates[i],
+            );
+          }
+        } else {
+          print("لا يمكن جدولة الأذكار، لا يوجد صلاحيات");
+        }
+        print(dates);
       }
-      print(dates);
+    } catch (e) {
+      return Future.error(e);
     }
   }
 }
@@ -242,7 +276,7 @@ class NotificationsApi {
     // final MacOSInitializationSettings initializationSettingsMacOS =
     //     const MacOSInitializationSettings();
 
-    final InitializationSettings initializationSettings =
+    const InitializationSettings initializationSettings =
         InitializationSettings(
       android: initializationSettingsAndroid,
       //  iOS: initializationSettingsIOS,
@@ -265,11 +299,18 @@ class NotificationsApi {
     String? payload,
     required tz.TZDateTime time,
   }) async {
-    _notifications.zonedSchedule(
-        id, title, body, time, await _notificationDetails(),
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        androidAllowWhileIdle: true);
+    try {
+      if (tz.TZDateTime.now(tz.local).isBefore(time)) {
+        await _notifications.zonedSchedule(
+            id, title, body, time, await _notificationDetails(),
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.absoluteTime,
+            androidAllowWhileIdle: true);
+        print("scheduled: $time");
+      }
+    } catch (e) {
+      print(e);
+    }
     // _notifications.show(id, title, body, await _notificationDetails(),
     //     payload: payload);
   }
@@ -282,8 +323,10 @@ class NotificationsApi {
   }
 
   static Future _notificationDetails() async {
-    return NotificationDetails(
+    return const NotificationDetails(
       android: AndroidNotificationDetails('channel id', 'channel name',
+          playSound: true,
+
           //channelDescription: 'chennel description',
           importance: Importance.max,
           priority: Priority.max),
