@@ -61,7 +61,7 @@ class PrayerTimeNotificationScheduler {
     // Make the HTTP GET request to the API
     try {
       var response = await http.get(Uri.parse(url));
-
+      print(response.statusCode);
       // Check the status code of the response
       if (response.statusCode == 200) {
         // If the call to the API was successful, parse the JSON response
@@ -76,7 +76,7 @@ class PrayerTimeNotificationScheduler {
           String fajrTime = day['timings']['Fajr'];
           var dd = DateFormat('dd-MM-yyyy').parse(date);
           if (dd.isAfter(DateTime.now().subtract(Duration(days: 1))) &&
-              dd.isBefore(DateTime.now().add(Duration(days: 2)))) {
+              dd.isBefore(DateTime.now().add(Duration(days: 7)))) {
             //var timeFajr = DateFormat.Hm().parse(fajrTime);
             // tz.TZDateTime tzFajr = tz.TZDateTime.utc(
             //   dd.year,

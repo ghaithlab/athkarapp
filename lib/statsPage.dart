@@ -33,9 +33,11 @@ class _StatsPageState extends State<StatsPage> {
     function();
   }
 
+  var eveningDaysCount = 0;
   void function() async {
     await clicksPerDay.init();
     setState(() {
+      eveningDaysCount = clicksPerDay.eveningStats["daysCount"] ?? 0;
       morningStats = clicksPerDay.morningStats;
       eveningStats = clicksPerDay.eveningStats;
     });
@@ -97,7 +99,7 @@ class _StatsPageState extends State<StatsPage> {
   @override
   Widget build(BuildContext context) {
     //printer();
-    clicksPerDay.fillMorningEveningDummyData();
+    //clicksPerDay.fillMorningEveningDummyData();
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -134,7 +136,9 @@ class _StatsPageState extends State<StatsPage> {
                     children: [
                       Text("أذكار الصباح",
                           style: Theme.of(context).textTheme.labelLarge),
-                      StatsRow(mp: clicksPerDay.morningStats),
+                      StatsRow(
+                        mp: clicksPerDay.morningStats,
+                      ),
                       SizedBox(
                         height: 4,
                       ),
@@ -193,7 +197,9 @@ class _StatsPageState extends State<StatsPage> {
                         "أذكار المساء",
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
-                      StatsRow(mp: clicksPerDay.eveningStats),
+                      StatsRow(
+                        mp: clicksPerDay.eveningStats,
+                      ),
                       SizedBox(
                         height: 4,
                       ),
@@ -250,7 +256,6 @@ class StatsRow extends StatelessWidget {
   }) : super(key: key);
 
   final Map mp;
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -262,18 +267,19 @@ class StatsRow extends StatelessWidget {
             padding: const EdgeInsets.only(right: 8),
             child: Column(
               children: [
-                // NumberCounter(
-                //     startValue: 0,
-                //     endValue: mp['daysCount'],
-                //     txtStyle: Theme.of(context)
+                NumberCounter(
+                  startValue: 0,
+                  endValue: mp['daysCount'],
+                  txtStyle: Theme.of(context)
+                      .textTheme
+                      .labelLarge!
+                      .copyWith(fontSize: 24),
+                ),
+                // Text("${mp['daysCount']}",
+                //     style: Theme.of(context)
                 //         .textTheme
                 //         .labelLarge!
-                //         .copyWith(fontSize: 28)),
-                Text("${mp['daysCount']}",
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelLarge!
-                        .copyWith(fontSize: 24)),
+                //         .copyWith(fontSize: 24)),
                 Text("الأيام",
                     style: Theme.of(context)
                         .textTheme
@@ -286,18 +292,27 @@ class StatsRow extends StatelessWidget {
             padding: const EdgeInsets.only(right: 8),
             child: Column(
               children: [
-                Text("${mp['consistency']}%",
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelLarge!
-                        .copyWith(fontSize: 24)),
-                // NumberCounter(
-                //     startValue: 0,
-                //     endValue: clicksPerDay.eveningStats['consistency'],
-                //     txtStyle: Theme.of(context)
+                // Text("${mp['consistency']}%",
+                //     style: Theme.of(context)
                 //         .textTheme
                 //         .labelLarge!
-                //         .copyWith(fontSize: 28)),
+                //         .copyWith(fontSize: 24)),
+                Row(
+                  children: [
+                    Text("%",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelLarge!
+                            .copyWith(fontSize: 24)),
+                    NumberCounter(
+                        startValue: 0,
+                        endValue: mp['consistency'],
+                        txtStyle: Theme.of(context)
+                            .textTheme
+                            .labelLarge!
+                            .copyWith(fontSize: 24)),
+                  ],
+                ),
                 Text("الثبات",
                     style: Theme.of(context)
                         .textTheme
@@ -314,18 +329,18 @@ class StatsRow extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    // NumberCounter(
-                    //     startValue: 0,
-                    //     endValue: mp['streak'],
-                    //     txtStyle: Theme.of(context)
-                    //         .textTheme
-                    //         .labelLarge!
-                    //         .copyWith(fontSize: 28)),
-                    Text("${mp['streak']}",
-                        style: Theme.of(context)
+                    NumberCounter(
+                        startValue: 0,
+                        endValue: mp['streak'],
+                        txtStyle: Theme.of(context)
                             .textTheme
                             .labelLarge!
                             .copyWith(fontSize: 24)),
+                    // Text("${mp['streak']}",
+                    //     style: Theme.of(context)
+                    //         .textTheme
+                    //         .labelLarge!
+                    //         .copyWith(fontSize: 24)),
                     SizedBox(
                       width: 3,
                     ),
@@ -366,16 +381,20 @@ class NumberCounter extends StatefulWidget {
 }
 
 class _NumberCounterState extends State<NumberCounter>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<int> _animation;
 
   @override
   void initState() {
     super.initState();
+    initializeController();
+  }
+
+  void initializeController() {
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 2),
+      duration: Duration(seconds: 1),
     );
     _animation = IntTween(
       begin: widget.startValue,
@@ -387,6 +406,19 @@ class _NumberCounterState extends State<NumberCounter>
         // }
       });
     _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(covariant oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _controller.dispose();
+    initializeController();
+
+    // setState(() {
+    //   _controller.value = 0.0;
+    //   _controller.forward();
+    // });
+    //retrying = false;
   }
 
   @override
