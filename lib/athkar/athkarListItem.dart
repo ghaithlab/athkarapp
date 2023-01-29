@@ -58,7 +58,7 @@ class AthkarListItem extends StatelessWidget {
                 child: NumberContainer(
                   txt: text2,
                   startValue: Color(0xFFF6DAAE),
-                  endValue: Color.fromARGB(255, 236, 230, 220),
+                  endValue: Color.fromARGB(255, 242, 236, 225),
                 ),
                 // child: Container(
                 //   decoration: BoxDecoration(
@@ -191,7 +191,7 @@ class _NumberContainerState extends State<NumberContainer>
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: Text(
               widget.txt,
-              style: TextStyle(
+              style: const TextStyle(
                   fontSize: 15,
                   color: fontColorLight,
                   fontWeight: FontWeight.w700),

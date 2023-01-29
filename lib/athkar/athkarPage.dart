@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:athkarapp/main.dart';
 import 'package:athkarapp/notificaiton_scheduler.dart';
 import 'package:athkarapp/statsPage.dart';
@@ -85,24 +87,27 @@ class _AthkarPageState extends State<AthkarPage> {
     var scheduleNotif;
 
     //var scheduleNotif = _prefs.getBool('scheduleNotif');
-    if (scheduleNotif == null) {
-      // first time app open
-      if (await _showMessage(
-          "يحتاج التطبيق إلى معرفة الموقع لحساب أوقات الصلاة ليقوم بإظهار إشعارات تذكير بالأذكار بأوقاتها المستحبة وهي بين صلاة الفجر وطلوع الشمس لأذكار الصباح و بين صلاة العصر وغروب الشمس لأذكار المساء، هل تريد جدولة الإشعارات؟",
-          "إذن استخدام الموقع")) {
-        //ok button clicked
+    if (Platform.isAndroid) {
+      //TODO: Remove when adding scheduing in IOS
+      if (scheduleNotif == null) {
+        // first time app open
+        if (await _showMessage(
+            "يحتاج التطبيق إلى معرفة الموقع لحساب أوقات الصلاة ليقوم بإظهار إشعارات تذكير بالأذكار بأوقاتها المستحبة وهي بين صلاة الفجر وطلوع الشمس لأذكار الصباح و بين صلاة العصر وغروب الشمس لأذكار المساء، هل تريد جدولة الإشعارات؟",
+            "إذن استخدام الموقع")) {
+          //ok button clicked
+          PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
+          p.scheduleNotifications().onError(
+              (error, stackTrace) => _showMessage(error.toString(), "خطأ"));
+          _prefs.setBool('scheduleNotif', true);
+        } else {
+          //no button clicked
+          _prefs.setBool('scheduleNotif', false);
+        }
+      } else if (scheduleNotif == true) {
         PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
         p.scheduleNotifications().onError(
             (error, stackTrace) => _showMessage(error.toString(), "خطأ"));
-        _prefs.setBool('scheduleNotif', true);
-      } else {
-        //no button clicked
-        _prefs.setBool('scheduleNotif', false);
       }
-    } else if (scheduleNotif == true) {
-      PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
-      p.scheduleNotifications().onError(
-          (error, stackTrace) => _showMessage(error.toString(), "خطأ"));
     }
   }
 
