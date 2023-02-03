@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:athkarapp/homeScreen.dart';
+import 'package:athkarapp/models/habitsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,9 +13,16 @@ import 'notificaiton_scheduler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'dart:core';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+
+  Hive.registerAdapter(HabitRecordAdapter());
+  await Hive.openBox<HabitRecord>('Habits');
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
