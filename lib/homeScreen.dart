@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:athkarapp/athkar/athkarPage.dart';
 import 'package:athkarapp/clicksPerDay.dart';
+import 'package:athkarapp/habitStatsPage.dart';
 import 'package:athkarapp/models/boxes.dart';
 import 'package:athkarapp/models/habitsModel.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -35,8 +38,10 @@ class _HomeScreenState extends State<HomeScreen>
   //   DateTime(2023, 2, 13): 6,
   // };
   Map<DateTime, int> heatMapDatasets = {};
-  Map<DateTime, int> combineMaps(List<Map<DateTime, int>?> maps) {
+  Map<DateTime, int> combineMaps(List<HabitRecord> habits) {
     Map<DateTime, int> combinedMap = {};
+    var maps = habits.map((e) => e.records).toList();
+
     maps.forEach((map) {
       map!.forEach((key, value) {
         // combinedMap.update(key, (existingValue) => existingValue + value,
@@ -45,58 +50,167 @@ class _HomeScreenState extends State<HomeScreen>
             ifAbsent: () => 1);
       });
     });
-    return combinedMap;
+
+    //get first date of each hatbit so we know when each habit started so we can know the count of habits each day
+    // var sortedListOfDatesListsOfHabits = maps.map((e) {
+    //   var l = e!.keys.toList();
+    //   l.sort((a, b) => a.compareTo(b));
+    //   return l;
+    // });
+    //previous code didnt work
+    var sortedListOfDatesListsOfHabits = habits.map((e) {
+      return e.creationDate;
+    });
+    print("sorted List Of Dates Lists Of Habits");
+    print(sortedListOfDatesListsOfHabits);
+    print("old combined");
+    print(combinedMap);
+    //calculate percentage for each day by checking count of habits each day (using starting date)
+    Map<DateTime, int> calculatedPercentageEveryday =
+        combinedMap.map((key, value) {
+      int habitsThisDay = 0;
+      sortedListOfDatesListsOfHabits.forEach((element) {
+        if (element != null) if (key.compareTo(element) >= 0) habitsThisDay++;
+      });
+      if (habitsThisDay == 0) print("this key!!!!!!!!!!! $key"); //TODO: Delete
+      print("$value / $habitsThisDay = ${value / habitsThisDay}");
+      return MapEntry(key, ((value / habitsThisDay) * 100).toInt());
+    });
+
+    print("calculated Percentage Everyday");
+    print(calculatedPercentageEveryday);
+
+    print("old combined");
+    print(combinedMap);
+    return calculatedPercentageEveryday;
   }
 
-  void initializeDefaultHabits() {
-    if (Boxes.getHabits().values.isEmpty) {
-      var defaultHabits = [
-        HabitRecord(
-            id: UniqueKey().toString(),
-            name: "صلاة الضحى",
-            isBasicHabit: true,
-            isDefaultHabit: true),
-        HabitRecord(
-            id: "###1",
-            name: "أذكار الصباح",
-            isBasicHabit: false,
-            isDefaultHabit: true),
-        HabitRecord(
-            id: UniqueKey().toString(),
-            name: "قراءة ١٠ صفحات",
-            isBasicHabit: true,
-            isDefaultHabit: false),
-        HabitRecord(
-            id: UniqueKey().toString(),
-            name: "رياضة: ضغط",
-            isBasicHabit: true,
-            isDefaultHabit: false),
-        HabitRecord(
-            id: UniqueKey().toString(),
-            name: "رياضة: ثابت",
-            isBasicHabit: true,
-            isDefaultHabit: false),
-        HabitRecord(
-            id: "###2",
-            name: "أذكار المساء",
-            isBasicHabit: false,
-            isDefaultHabit: true),
-      ];
-      Box box = Boxes.getHabits();
-      defaultHabits.forEach((e) async {
-        print("in map");
-        await box.add(e);
+  HabitRecord? getHabitById(String id) {
+    var habits = Boxes.getHabits().values.toList();
+    HabitRecord? item;
+    habits.forEach((element) {
+      if (element.id == id) item = element;
+    });
+    return item;
+  }
 
-        //return 1;
-      });
+  String morningAthkarId = "###1";
+  String eveningAthkarId = "###2";
+  void portOldStatsToDatabase() async {
+    ClicksPerDay clicksPerDay = ClicksPerDay();
+    await clicksPerDay.init();
+    var morningAthkarListOld = clicksPerDay.morningClicksOfDays;
+
+    var eveningAthkarLastOld = clicksPerDay.afternoonClicksOfDays;
+    Box box = Boxes.getHabits();
+    if (morningAthkarListOld.keys.isNotEmpty) {
+      //var morningAthkarHabitRecord = box.getAt(1) as HabitRecord;
+      var morningAthkarHabitRecord = getHabitById(morningAthkarId);
+      if (morningAthkarHabitRecord != null) {
+        morningAthkarListOld.forEach((key, value) {
+          morningAthkarHabitRecord.records![key] = value;
+        });
+        var listOfKeys = morningAthkarListOld.keys.toList();
+        listOfKeys.sort((a, b) => a.compareTo(b));
+        morningAthkarHabitRecord.creationDate = listOfKeys.first;
+        await morningAthkarHabitRecord.save();
+        print("morning athkar first key:");
+        print(morningAthkarListOld.keys.first);
+      }
+    }
+    if (eveningAthkarLastOld.keys.isNotEmpty) {
+      //var eveningAthkarHabitRecord = box.getAt(5) as HabitRecord;
+      var eveningAthkarHabitRecord = getHabitById(eveningAthkarId);
+      if (eveningAthkarHabitRecord != null) {
+        eveningAthkarLastOld.forEach((key, value) {
+          eveningAthkarHabitRecord.records![key] = value;
+        });
+        var listOfKeys = eveningAthkarLastOld.keys.toList();
+        listOfKeys.sort((a, b) => a.compareTo(b));
+        eveningAthkarHabitRecord.creationDate = listOfKeys.first;
+        await eveningAthkarHabitRecord.save();
+        print("evening athkar first key:");
+        print(eveningAthkarLastOld.keys.first);
+      }
     }
   }
 
+  void initializeDefaultHabits() async {
+    if (Boxes.getHabits().values.isEmpty) {
+      var today = DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day);
+      var defaultHabits = [
+        HabitRecord(
+          id: UniqueKey().toString(),
+          name: "صلاة الضحى",
+          isBasicHabit: true,
+          isDefaultHabit: true,
+          creationDate: today,
+        ),
+        HabitRecord(
+          id: morningAthkarId,
+          name: "أذكار الصباح",
+          isBasicHabit: false,
+          isDefaultHabit: true,
+          creationDate: today,
+        ),
+        HabitRecord(
+          id: UniqueKey().toString(),
+          name: "الذكر الى طلوع الفجر",
+          isBasicHabit: true,
+          isDefaultHabit: true,
+          creationDate: today,
+        ),
+        HabitRecord(
+          id: eveningAthkarId,
+          name: "أذكار المساء",
+          isBasicHabit: false,
+          isDefaultHabit: true,
+          creationDate: today,
+        ),
+        HabitRecord(
+          id: UniqueKey().toString(),
+          name: "رياضة: ضغط",
+          isBasicHabit: true,
+          isDefaultHabit: false,
+          creationDate: today,
+        ),
+        HabitRecord(
+          id: UniqueKey().toString(),
+          name: "رياضة: ثابت",
+          isBasicHabit: true,
+          isDefaultHabit: false,
+          creationDate: today,
+        ),
+        HabitRecord(
+          id: UniqueKey().toString(),
+          name: "قراءة ١٠ صفحات",
+          isBasicHabit: true,
+          isDefaultHabit: false,
+          creationDate: today,
+        ),
+      ];
+      Box box = Boxes.getHabits();
+      defaultHabits.forEach((e) async {
+        await box.add(e);
+      });
+    }
+    portOldStatsToDatabase();
+  }
+
+  @override
+  void initState() {
+    mmmain();
+
+    super.initState();
+  }
+
   void mmmain() async {
-    initializeDefaultHabits();
     print("main");
     print(Boxes.getHabits().values);
     //await Boxes.getHabits().clear();
+
+    initializeDefaultHabits();
     // var habit = HabitRecord(id: UniqueKey().toString(), name: "firstHabit1");
     // await Boxes.getHabits().add(habit);
     // habitCheckIn(habit: habit);
@@ -110,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen>
     print(habits.map((e) => e.records));
 
     print("combined map:");
-    var combinedMaps = combineMaps(listOfMaps);
+    var combinedMaps = combineMaps(habits);
     print(combinedMaps);
     var datesListSorted = combinedMaps.keys.toList();
     datesListSorted.sort((a, b) => a.compareTo(b));
@@ -125,19 +239,19 @@ class _HomeScreenState extends State<HomeScreen>
         appBar: AppBar(
           title: const Text("عادات المسلم"),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                var habits = Boxes.getHabits().values.toList();
-                habits.forEach((element) async {
-                  element.records = {};
-                  await element.save();
-                  setState(() {});
-                });
-                //setState(() {});
-              },
-              tooltip: 'تبديل السمة',
-            ),
+            // IconButton(
+            //   icon: const Icon(Icons.delete),
+            //   onPressed: () {
+            //     var habits = Boxes.getHabits().values.toList();
+            //     habits.forEach((element) async {
+            //       element.records = {};
+            //       await element.save();
+            //       setState(() {});
+            //     });
+            //     //setState(() {});
+            //   },
+            //   tooltip: 'تبديل السمة',
+            // ),
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () {
@@ -154,33 +268,52 @@ class _HomeScreenState extends State<HomeScreen>
           ],
         ),
 
-        body: ValueListenableBuilder<Box<HabitRecord>>(
-          valueListenable: Boxes.getHabits().listenable(),
-          builder: (context, box, _) {
-            final habits = box.values.toList().cast<HabitRecord>();
+        body: SingleChildScrollView(
+          physics: BouncingScrollPhysics(
+              decelerationRate: ScrollDecelerationRate.fast),
+          child: ValueListenableBuilder<Box<HabitRecord>>(
+            valueListenable: Boxes.getHabits().listenable(),
+            builder: (context, box, _) {
+              final habits = box.values.toList().cast<HabitRecord>();
 
-            var listOfMaps = habits.map((e) => e.records).toList();
+              //var listOfMaps = habits.map((e) => e.records).toList();
 
-            var combinedMaps = combineMaps(listOfMaps);
-            heatMapDatasets = {
-              ...combinedMaps,
-              DateTime(2020, 2, 1): habits.length,
-            };
-            // TODO: DateTime(2020, 2, 1): 6 this is an adhoc sulition for the max value of the grid,
-            //when adding new habit all colors of max value will be disrubted
-            var datesListSorted = combinedMaps.keys.toList();
-            datesListSorted.sort((a, b) => a.compareTo(b));
-            DateTime start = datesListSorted.first;
-            DateTime last = datesListSorted.last;
-
-            return Column(
-              children: [
-                buildStatusCard(start, last),
-                Expanded(
-                  //height: MediaQuery.of(context).size.height,
-                  child: GridView.count(
+              var combinedMaps = combineMaps(habits);
+              heatMapDatasets = {
+                ...combinedMaps,
+                DateTime(2020, 2, 1):
+                    100, // 100 means all habits are done that date (all days are now % using combine funciton)
+              };
+              // TODO: DateTime(2020, 2, 1): 6 this is an adhoc sulition for the max value of the grid,
+              //when adding new habit all colors of max value will be disrubted
+              var datesListSorted = combinedMaps.keys.toList();
+              datesListSorted.sort((a, b) => a.compareTo(b));
+              DateTime start = DateTime.now();
+              DateTime last = DateTime.now();
+              if (datesListSorted.isNotEmpty) {
+                start = datesListSorted.first;
+                //last = datesListSorted.last;
+              }
+              return Column(
+                children: [
+                  buildStatusCard(start, last),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.only(right: 20, top: 16, bottom: 8),
+                      child: Text(
+                        "العادات",
+                        style: TextStyle(fontSize: 24),
+                      ),
+                    ),
+                  ),
+                  GridView.count(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
                     primary: false,
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.only(
+                        right: 20, top: 8, bottom: 20, left: 20), //all(20),
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
                     crossAxisCount: 2,
@@ -192,10 +325,10 @@ class _HomeScreenState extends State<HomeScreen>
                       );
                     }).toList(),
                   ),
-                ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
         //HabitButtonAnimated(controller: _controller, animationDone: animationDone),
         //HabitButton(),
@@ -234,7 +367,7 @@ class _HomeScreenState extends State<HomeScreen>
               child: Center(
                 child: Text(
                   "جميع الأيام",
-                  style: Theme.of(context).textTheme.labelLarge,
+                  style: TextStyle(fontSize: 24),
                 ),
               ),
             ),
@@ -282,7 +415,12 @@ class _HomeScreenState extends State<HomeScreen>
 
   addNewHabit(String name, String id) {
     print("name: $name - id: $id");
-    final habit = HabitRecord(id: id, name: name);
+    final habit = HabitRecord(
+        isDefaultHabit: false,
+        id: id,
+        name: name,
+        creationDate: DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day));
     Boxes.getHabits().add(habit);
   }
 
@@ -290,13 +428,6 @@ class _HomeScreenState extends State<HomeScreen>
     var today = DateTime.now();
     habit.records![DateTime(today.year, today.month, today.day)] = value ?? 1;
     habit.save();
-  }
-
-  @override
-  void initState() {
-    mmmain();
-
-    super.initState();
   }
 }
 
@@ -331,8 +462,8 @@ class _HabitButtonAnimatedState extends State<HabitButtonAnimated>
     _controller = AnimationController(
         vsync: this,
         duration: Duration(milliseconds: 750),
-        lowerBound: 0.3,
-        upperBound: 0.75);
+        lowerBound: 0.15,
+        upperBound: 1);
     if (widget.habit.records!
         .containsKey(DateTime(today.year, today.month, today.day)))
       animationDone = true;
@@ -370,6 +501,15 @@ class _HabitButtonAnimatedState extends State<HabitButtonAnimated>
     super.initState();
   }
 
+  Color getColor(bool isDefaultHabit, bool isBasicHabit) {
+    if (isDefaultHabit)
+      return Color.fromARGB(255, 210, 178, 126);
+    else if (isBasicHabit)
+      return Color.fromARGB(255, 125, 173, 212);
+    else
+      return Color.fromARGB(255, 125, 212, 187);
+  }
+
   @override
   Widget build(BuildContext context) {
     _scale = 1 - _controllerSize.value;
@@ -381,10 +521,10 @@ class _HabitButtonAnimatedState extends State<HabitButtonAnimated>
           padding: EdgeInsets.all(25),
           decoration: BoxDecoration(
               color: widget.habit.isDefaultHabit!
-                  ? Color.fromARGB(255, 215, 171, 102)
-                      .withOpacity(animationDone ? 0.75 : _controller.value)
-                  : Color.fromARGB(255, 102, 164, 215)
-                      .withOpacity(animationDone ? 0.75 : _controller.value),
+                  ? Color.fromARGB(255, 210, 178, 126)
+                      .withOpacity(animationDone ? 1 : _controller.value)
+                  : Color.fromARGB(255, 125, 173, 212)
+                      .withOpacity(animationDone ? 1 : _controller.value),
               // border: Border.all(width: 0),
               borderRadius: BorderRadius.circular(15)),
           child: Column(
@@ -406,6 +546,10 @@ class _HabitButtonAnimatedState extends State<HabitButtonAnimated>
                     //color: fontColorLight,
                     fontWeight: FontWeight.w600),
               ),
+              // Align(
+              //   child: Icon(Icons.done_all),
+              //   alignment: Alignment.center,
+              // )
             ],
           ),
         ),
@@ -413,7 +557,15 @@ class _HabitButtonAnimatedState extends State<HabitButtonAnimated>
       onTap: () {
         if (widget.habit.id == "###1" || widget.habit.id == "###2") {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return AthkarPage();
+            return AthkarPage(
+                habit: widget.habit,
+                isMorningAthkar: widget.habit.id == "###1" ? true : false);
+          }));
+        } else {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return HabitStatsPage(
+              habit: widget.habit,
+            );
           }));
         }
       },

@@ -19,11 +19,15 @@ class HabitRecord extends HiveObject {
   @HiveField(8)
   late Map<DateTime, int>? records;
 
+  @HiveField(9)
+  late DateTime? creationDate;
+
   HabitRecord(
       {required this.id,
       required this.name,
       this.isBasicHabit = false,
-      this.isDefaultHabit = true}) {
+      this.isDefaultHabit = true,
+      required this.creationDate}) {
     records = {};
   }
 
@@ -33,6 +37,12 @@ class HabitRecord extends HiveObject {
   @HiveField(7)
   late bool?
       isBasicHabit; //basic means only Done or not, it doesnt have a value like number of pages in reading habit
+
+  bool hasToday() {
+    DateTime today = DateTime.now();
+
+    return (records!.containsKey(DateTime(today.year, today.month, today.day)));
+  }
 
   int calculateStreak() {
     var list = records!.keys.toList();
@@ -69,6 +79,23 @@ class HabitRecord extends HiveObject {
       }
     }
     return streak;
+  }
+
+  int calculateDaysCount() {
+    return records!.length;
+  }
+
+  int calculateConsistency() {
+    List<DateTime> sorted = records!.keys.toList();
+    if (sorted.isNotEmpty) {
+      sorted.sort((a, b) => b.compareTo(a)); //sorted in reverse order
+      DateTime first = sorted.last;
+      DateTime last = sorted.first;
+      DateTime now = DateTime.now();
+      int numDays = now.difference(first).inDays + 1;
+      return (sorted.length / numDays * 100).ceil();
+    }
+    return 0;
   }
 }
 

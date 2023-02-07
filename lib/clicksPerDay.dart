@@ -75,11 +75,11 @@ class ClicksPerDay {
       }
     }
     if (afternoonClicksOfDays.isNotEmpty) {
-      afternoonClicksOfDays = normalizeMap(afternoonClicksOfDays);
+      //afternoonClicksOfDays = normalizeMap(afternoonClicksOfDays);
       calculateStats(afternoonClicksOfDays, eveningStats);
     }
     if (morningClicksOfDays.isNotEmpty) {
-      morningClicksOfDays = normalizeMap(morningClicksOfDays);
+      // morningClicksOfDays = normalizeMap(morningClicksOfDays);
       calculateStats(morningClicksOfDays, morningStats);
     }
   }

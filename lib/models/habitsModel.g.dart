@@ -21,19 +21,22 @@ class HabitRecordAdapter extends TypeAdapter<HabitRecord> {
       name: fields[1] as String,
       isBasicHabit: fields[7] as bool?,
       isDefaultHabit: fields[6] as bool?,
+      creationDate: fields[9] as DateTime?,
     )..records = (fields[8] as Map?)?.cast<DateTime, int>();
   }
 
   @override
   void write(BinaryWriter writer, HabitRecord obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(8)
       ..write(obj.records)
+      ..writeByte(9)
+      ..write(obj.creationDate)
       ..writeByte(6)
       ..write(obj.isDefaultHabit)
       ..writeByte(7)

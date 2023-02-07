@@ -1,10 +1,11 @@
+import 'package:athkarapp/Widgets/numberCounter.dart';
+import 'package:athkarapp/Widgets/statsRow.dart';
 import 'package:athkarapp/clicksPerDay.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import "package:flutter/material.dart";
 
 import 'heatMapWidget/data/heatmap_color_mode.dart';
 import 'heatMapWidget/heatmap.dart';
-
 import 'package:flutter/animation.dart';
 
 class StatsPage extends StatefulWidget {
@@ -96,8 +97,13 @@ class _StatsPageState extends State<StatsPage> {
         )));
   }
 
+  // Color sabah = Color.fromARGB(255, 222, 185, 127);
+  // Color masa = Color.fromARGB(255, 180, 111, 113);
+
   @override
   Widget build(BuildContext context) {
+    Color sabah = Color.fromARGB(255, 123, 167, 216);
+    Color masa = Color.fromARGB(255, 197, 122, 125);
     //printer();
     //clicksPerDay.fillMorningEveningDummyData();
     return Directionality(
@@ -123,7 +129,10 @@ class _StatsPageState extends State<StatsPage> {
               Card(
                 color: Theme.of(context).brightness == Brightness.dark
                     ? null
-                    : Color(0xFFFFFFFF),
+                    : //Color(0xFFFFFFFF),
+                    //
+                    // Color.fromARGB(255, 251, 249, 245),
+                    Color.fromARGB(255, 247, 240, 226),
                 shape: RoundedRectangleBorder(
                   side: BorderSide(color: Color(0xFFE1D2CC)),
                   borderRadius: BorderRadius.circular(16.0),
@@ -163,7 +172,9 @@ class _StatsPageState extends State<StatsPage> {
                         datasets: clicksPerDay.morningClicksOfDays,
                         colorsets: {
                           //1: Colors.red[400]!,
-                          1: Color(0xFFFFD89B),
+                          //1: Color(0xFFFFD89B),
+                          //1: Color.fromARGB(255, 180, 111, 113), try1
+                          1: sabah,
                           3: Colors.orange,
                           5: Colors.yellow,
                           7: Colors.green,
@@ -183,7 +194,8 @@ class _StatsPageState extends State<StatsPage> {
               Card(
                 color: Theme.of(context).brightness == Brightness.dark
                     ? null
-                    : Color(0xFFFFFFFF),
+                    //: Color(0xFFFFFFFF),
+                    : Color.fromARGB(255, 247, 240, 226),
                 shape: RoundedRectangleBorder(
                     side: BorderSide(color: Color(0xFFE1D2CC)),
                     borderRadius: BorderRadius.circular(16.0)),
@@ -224,7 +236,8 @@ class _StatsPageState extends State<StatsPage> {
                         datasets: clicksPerDay.afternoonClicksOfDays,
                         colorsets: {
                           //1: Colors.yellow[600]!,
-                          1: Color(0xFF73CABA),
+                          //1: Color(0xFF73CABA),
+                          1: masa,
                           3: Colors.orange,
                           5: Colors.yellow,
                           7: Colors.green,
@@ -232,6 +245,7 @@ class _StatsPageState extends State<StatsPage> {
                           11: Colors.indigo,
                           13: Colors.purple,
                         },
+
                         onClick: (value) {
                           showSnackMessge(
                               "${value.year} - ${value.month} - ${value.day}");
@@ -245,198 +259,6 @@ class _StatsPageState extends State<StatsPage> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class StatsRow extends StatelessWidget {
-  const StatsRow({
-    Key? key,
-    required this.mp,
-  }) : super(key: key);
-
-  final Map mp;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Column(
-              children: [
-                NumberCounter(
-                  startValue: 0,
-                  endValue: mp['daysCount'],
-                  txtStyle: Theme.of(context)
-                      .textTheme
-                      .labelLarge!
-                      .copyWith(fontSize: 24),
-                ),
-                // Text("${mp['daysCount']}",
-                //     style: Theme.of(context)
-                //         .textTheme
-                //         .labelLarge!
-                //         .copyWith(fontSize: 24)),
-                Text("الأيام",
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelLarge!
-                        .copyWith(fontSize: 16))
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Column(
-              children: [
-                // Text("${mp['consistency']}%",
-                //     style: Theme.of(context)
-                //         .textTheme
-                //         .labelLarge!
-                //         .copyWith(fontSize: 24)),
-                Row(
-                  children: [
-                    Text("%",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelLarge!
-                            .copyWith(fontSize: 24)),
-                    NumberCounter(
-                        startValue: 0,
-                        endValue: mp['consistency'],
-                        txtStyle: Theme.of(context)
-                            .textTheme
-                            .labelLarge!
-                            .copyWith(fontSize: 24)),
-                  ],
-                ),
-                Text("الثبات",
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelLarge!
-                        .copyWith(fontSize: 16))
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    NumberCounter(
-                        startValue: 0,
-                        endValue: mp['streak'],
-                        txtStyle: Theme.of(context)
-                            .textTheme
-                            .labelLarge!
-                            .copyWith(fontSize: 24)),
-                    // Text("${mp['streak']}",
-                    //     style: Theme.of(context)
-                    //         .textTheme
-                    //         .labelLarge!
-                    //         .copyWith(fontSize: 24)),
-                    SizedBox(
-                      width: 3,
-                    ),
-                    Text("يوم",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelLarge!
-                            .copyWith(fontSize: 12))
-                  ],
-                ),
-                Text("المداومة",
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelLarge!
-                        .copyWith(fontSize: 16))
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class NumberCounter extends StatefulWidget {
-  final int startValue;
-  final int endValue;
-  final TextStyle txtStyle;
-  const NumberCounter(
-      {Key? key,
-      this.startValue = 0,
-      required this.endValue,
-      required TextStyle this.txtStyle})
-      : super(key: key);
-
-  @override
-  _NumberCounterState createState() => _NumberCounterState();
-}
-
-class _NumberCounterState extends State<NumberCounter>
-    with TickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<int> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    initializeController();
-  }
-
-  void initializeController() {
-    _controller = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 1),
-    );
-    _animation = IntTween(
-      begin: widget.startValue,
-      end: widget.endValue,
-    ).animate(_controller)
-      ..addStatusListener((status) {
-        // if (status == AnimationStatus.completed) {
-        //   _controller.stop();
-        // }
-      });
-    _controller.forward();
-  }
-
-  @override
-  void didUpdateWidget(covariant oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _controller.dispose();
-    initializeController();
-
-    // setState(() {
-    //   _controller.value = 0.0;
-    //   _controller.forward();
-    // });
-    //retrying = false;
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Text(
-          _animation.value.toString(),
-          style: widget.txtStyle,
-        );
-      },
     );
   }
 }

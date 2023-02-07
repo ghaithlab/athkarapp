@@ -192,7 +192,7 @@ class PrayerTimeNotificationScheduler {
       //   payload: "payload",
       //   time: tz.TZDateTime.now(tz.local).add(const Duration(seconds: 20)),
       // );
-      NotificationsApi.clear();
+
       // var dd = DateTime.now().add(Duration(seconds: 20));
       // // DateTime dd = DateFormat('dd-MM-yyyy HH:mm')
       // //     .parse('14-1-2023 11:55')
@@ -222,6 +222,7 @@ class PrayerTimeNotificationScheduler {
       //if (scheduledNotifications == 0)
       if (true) {
         await init();
+        NotificationsApi.clear();
         bool x = await NotificationsApi.isAndroidPermissionGranted();
         if (x) {
           for (int i = 0; i < dates.length; i++) {

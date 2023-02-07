@@ -1,4 +1,6 @@
 import 'package:athkarapp/clicksPerDay.dart';
+import 'package:athkarapp/habitStatsPage.dart';
+import 'package:athkarapp/models/habitsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 
@@ -8,6 +10,7 @@ import 'athkarListItem.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
 class AthkarList extends StatefulWidget {
+  HabitRecord habit;
   List<Athkar> athkars;
   double fontSize;
   List<Athkar> removedItems;
@@ -16,7 +19,8 @@ class AthkarList extends StatefulWidget {
       {required this.athkars,
       required this.fontSize,
       required this.removedItems,
-      required this.isMorning});
+      required this.isMorning,
+      required this.habit});
   @override
   _AthkarListState createState() => _AthkarListState();
 }
@@ -45,11 +49,12 @@ class _AthkarListState extends State<AthkarList> {
         // Check if the list is not empty
         if (widget.athkars.isNotEmpty) {
           setState(() {
-            clicksPerDay.saveClicksPerDay(1, widget.isMorning);
+            //clicksPerDay.saveClicksPerDay(1, widget.isMorning);
 
             if (widget.athkars[0].counter > 1) {
               widget.athkars[0].counter--;
             } else {
+              saveThikirCount(widget.athkars[0].thikirCount);
               widget.removedItems.add(widget.athkars[0]);
 
               widget.athkars.removeAt(0);
@@ -68,9 +73,9 @@ class _AthkarListState extends State<AthkarList> {
             return Dismissible(
               key: ValueKey(widget.athkars[index].paragraph),
               onDismissed: (direction) {
-                clicksPerDay.saveClicksPerDay(
-                    widget.athkars[index].counter, widget.isMorning);
-
+                // clicksPerDay.saveClicksPerDay(
+                //     widget.athkars[index].counter, widget.isMorning);
+                saveThikirCount(widget.athkars[index].thikirCount);
                 setState(() {
                   widget.removedItems.add(widget.athkars[index]);
 
@@ -88,6 +93,19 @@ class _AthkarListState extends State<AthkarList> {
         ),
       ),
     );
+  }
+
+  void saveThikirCount(int count) {
+    var today = DateTime.now();
+    today = DateTime(today.year, today.month, today.day);
+    if (widget.habit.records!.containsKey(today)) {
+      //not first thikir so accumulate count of thikir
+      widget.habit.records![today] = count + widget.habit.records![today]!;
+    } else {
+      //first thikir in the day so the date is not in the map
+      widget.habit.records![today] = count;
+    }
+    widget.habit.save();
   }
 
   Future<void> _undoRemove() async {
@@ -115,8 +133,11 @@ class _AthkarListState extends State<AthkarList> {
           "athkar": widget.isMorning ? "morning" : "evening",
         },
       );
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return StatsPage();
+      //Navigator.pop(context);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+        //return StatsPage();
+
+        return HabitStatsPage(habit: widget.habit);
       }));
     }
   }

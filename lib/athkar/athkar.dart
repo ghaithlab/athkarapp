@@ -11,8 +11,11 @@
 class Athkar {
   final String paragraph;
   int counter;
-
-  Athkar({required this.paragraph, required this.counter});
+  int thikirCount;
+  Athkar(
+      {required this.paragraph,
+      required this.counter,
+      required this.thikirCount});
 }
 
 final List<int> counters = [

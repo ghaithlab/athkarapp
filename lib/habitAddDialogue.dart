@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:athkarapp/models/habitsModel.dart';
 import 'package:flutter/material.dart';
 
@@ -47,28 +49,37 @@ class _TransactionDialogState extends State<TransactionDialog> {
     final isEditing = widget.transaction != null;
     final title = isEditing ? 'تعديل العادة' : 'إضافة عادة جديدة';
 
-    return AlertDialog(
-      title: Text(title),
-      content: Form(
-        key: formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              SizedBox(height: 8),
-              buildName(),
-              SizedBox(height: 8),
-              buildAmount(),
-              SizedBox(height: 8),
-              buildRadioButtons(),
-            ],
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12.0))),
+          title: Text(title),
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  SizedBox(height: 8),
+                  buildName(),
+                  // SizedBox(height: 8),
+                  // buildAmount(),
+                  // SizedBox(height: 8),
+                  // buildRadioButtons(),
+                ],
+              ),
+            ),
           ),
+          actions: <Widget>[
+            buildAddButton(context, isEditing: isEditing),
+            buildCancelButton(context),
+          ],
         ),
       ),
-      actions: <Widget>[
-        buildCancelButton(context),
-        buildAddButton(context, isEditing: isEditing),
-      ],
     );
   }
 
@@ -76,10 +87,9 @@ class _TransactionDialogState extends State<TransactionDialog> {
         controller: nameController,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
-          hintText: 'Enter Name',
+          hintText: 'اسم العادة',
         ),
-        validator: (name) =>
-            name != null && name.isEmpty ? 'Enter a name' : null,
+        validator: (name) => name != null && name.isEmpty ? 'اسم العادم' : null,
       );
 
   Widget buildAmount() => TextFormField(
@@ -111,12 +121,12 @@ class _TransactionDialogState extends State<TransactionDialog> {
       );
 
   Widget buildCancelButton(BuildContext context) => TextButton(
-        child: Text('Cancel'),
+        child: Text('الغاء'),
         onPressed: () => Navigator.of(context).pop(),
       );
 
   Widget buildAddButton(BuildContext context, {required bool isEditing}) {
-    final text = isEditing ? 'Save' : 'Add';
+    final text = isEditing ? 'حفظ' : 'إضافة';
 
     return TextButton(
       child: Text(text),
