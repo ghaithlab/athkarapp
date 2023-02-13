@@ -22,13 +22,14 @@ class HabitRecordAdapter extends TypeAdapter<HabitRecord> {
       isBasicHabit: fields[7] as bool?,
       isDefaultHabit: fields[6] as bool?,
       creationDate: fields[9] as DateTime?,
+      maxValue: fields[10] == null ? 1 : fields[10] as int,
     )..records = (fields[8] as Map?)?.cast<DateTime, int>();
   }
 
   @override
   void write(BinaryWriter writer, HabitRecord obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -40,7 +41,9 @@ class HabitRecordAdapter extends TypeAdapter<HabitRecord> {
       ..writeByte(6)
       ..write(obj.isDefaultHabit)
       ..writeByte(7)
-      ..write(obj.isBasicHabit);
+      ..write(obj.isBasicHabit)
+      ..writeByte(10)
+      ..write(obj.maxValue);
   }
 
   @override

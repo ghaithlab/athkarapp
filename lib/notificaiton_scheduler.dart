@@ -177,7 +177,7 @@ class PrayerTimeNotificationScheduler {
 
   Future scheduleNotifications() async {
     try {
-      NotificationsApi.init();
+      await NotificationsApi.init();
 
       int scheduledNotifications =
           await NotificationsApi.listScheduledNotifications();
@@ -185,13 +185,6 @@ class PrayerTimeNotificationScheduler {
       // scheduledNotifications =
       //     await NotificationsApi.listScheduledNotifications();
       // var dd = DateTime.now();
-
-      // await NotificationsApi.schedule(
-      //   title: "title",
-      //   body: "from",
-      //   payload: "payload",
-      //   time: tz.TZDateTime.now(tz.local).add(const Duration(seconds: 20)),
-      // );
 
       // var dd = DateTime.now().add(Duration(seconds: 20));
       // // DateTime dd = DateFormat('dd-MM-yyyy HH:mm')
@@ -263,9 +256,13 @@ class NotificationsApi {
     await _notifications.cancelAll();
   }
 
-  static void init() async {
+  static Future init() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('mipmap/ic_launcher');
+    //AndroidInitializationSettings('ic_launcher_mono');
+
+    final DarwinInitializationSettings initializationSettingsDarwin =
+        DarwinInitializationSettings();
 
     // final IOSInitializationSettings initializationSettingsIOS =
     //     const IOSInitializationSettings(
@@ -277,9 +274,9 @@ class NotificationsApi {
     // final MacOSInitializationSettings initializationSettingsMacOS =
     //     const MacOSInitializationSettings();
 
-    const InitializationSettings initializationSettings =
-        InitializationSettings(
+    InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin,
       //  iOS: initializationSettingsIOS,
       //  macOS: initializationSettingsMacOS,
     );
@@ -354,14 +351,14 @@ class NotificationsApi {
   static Future<bool> requestPermissions() async {
     bool? granted = false;
     if (Platform.isIOS || Platform.isMacOS) {
-      // await _notifications
-      //     .resolvePlatformSpecificImplementation<
-      //         IOSFlutterLocalNotificationsPlugin>()
-      //     ?.requestPermissions(
-      //       alert: true,
-      //       badge: true,
-      //       sound: true,
-      //     );
+      granted = await _notifications
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
       // await _notifications
       //     .resolvePlatformSpecificImplementation<
       //         MacOSFlutterLocalNotificationsPlugin>()

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:athkarapp/Widgets/HabitStatsPagePopUp.dart';
 import 'package:athkarapp/athkar/athkarPage.dart';
 import 'package:athkarapp/clicksPerDay.dart';
 import 'package:athkarapp/habitStatsPage.dart';
@@ -50,7 +51,8 @@ class _HomeScreenState extends State<HomeScreen>
             ifAbsent: () => 1);
       });
     });
-
+    print("sorted List Of Dates Lists Of Habits");
+    print(maps);
     //get first date of each hatbit so we know when each habit started so we can know the count of habits each day
     // var sortedListOfDatesListsOfHabits = maps.map((e) {
     //   var l = e!.keys.toList();
@@ -153,10 +155,11 @@ class _HomeScreenState extends State<HomeScreen>
           isBasicHabit: false,
           isDefaultHabit: true,
           creationDate: today,
+          maxValue: 183,
         ),
         HabitRecord(
           id: UniqueKey().toString(),
-          name: "الذكر الى طلوع الفجر",
+          name: "صلاة الوتر",
           isBasicHabit: true,
           isDefaultHabit: true,
           creationDate: today,
@@ -167,26 +170,27 @@ class _HomeScreenState extends State<HomeScreen>
           isBasicHabit: false,
           isDefaultHabit: true,
           creationDate: today,
+          maxValue: 184,
         ),
+        // HabitRecord(
+        //   id: UniqueKey().toString(),
+        //   name: "رياضة: ضغط",
+        //   isBasicHabit: true,
+        //   isDefaultHabit: false,
+        //   creationDate: today,
+        // ),
+        // HabitRecord(
+        //   id: UniqueKey().toString(),
+        //   name: "رياضة: ثابت",
+        //   isBasicHabit: true,
+        //   isDefaultHabit: false,
+        //   creationDate: today,
+        // ),
         HabitRecord(
           id: UniqueKey().toString(),
-          name: "رياضة: ضغط",
+          name: "قراءة ورد قرآن",
           isBasicHabit: true,
-          isDefaultHabit: false,
-          creationDate: today,
-        ),
-        HabitRecord(
-          id: UniqueKey().toString(),
-          name: "رياضة: ثابت",
-          isBasicHabit: true,
-          isDefaultHabit: false,
-          creationDate: today,
-        ),
-        HabitRecord(
-          id: UniqueKey().toString(),
-          name: "قراءة ١٠ صفحات",
-          isBasicHabit: true,
-          isDefaultHabit: false,
+          isDefaultHabit: true,
           creationDate: today,
         ),
       ];
@@ -198,9 +202,15 @@ class _HomeScreenState extends State<HomeScreen>
     portOldStatsToDatabase();
   }
 
+  late bool animate = true;
+
   @override
   void initState() {
     mmmain();
+
+    Future.delayed(Duration(milliseconds: 200)).then((value) => setState(() {
+          animate = !animate;
+        }));
 
     super.initState();
   }
@@ -231,8 +241,10 @@ class _HomeScreenState extends State<HomeScreen>
     print(datesListSorted);
   }
 
+  late bool isDarkMode;
   @override
   Widget build(BuildContext context) {
+    isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -253,6 +265,15 @@ class _HomeScreenState extends State<HomeScreen>
             //   tooltip: 'تبديل السمة',
             // ),
             IconButton(
+              icon: Icon(isDarkMode
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined),
+              onPressed: () {
+                MyApp.of(context)!.changeTheme();
+              },
+              tooltip: 'تبديل السمة',
+            ),
+            IconButton(
               icon: const Icon(Icons.add),
               onPressed: () {
                 showDialog(
@@ -261,9 +282,7 @@ class _HomeScreenState extends State<HomeScreen>
                           onClickedDone: addNewHabit,
                         ));
               },
-              //setState(() {});
-
-              tooltip: 'تبديل السمة',
+              tooltip: 'إضافة عادة جديدة',
             ),
           ],
         ),
@@ -304,7 +323,13 @@ class _HomeScreenState extends State<HomeScreen>
                           const EdgeInsets.only(right: 20, top: 16, bottom: 8),
                       child: Text(
                         "العادات",
-                        style: TextStyle(fontSize: 24),
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              //: Color.fromARGB(255, 217, 208, 193),
+                              : fontColorLight,
+                        ),
                       ),
                     ),
                   ),
@@ -322,6 +347,8 @@ class _HomeScreenState extends State<HomeScreen>
                         key: UniqueKey(),
                         habit: e,
                         onClickedDone: habitCheckIn,
+                        isDarkMode:
+                            Theme.of(context).brightness == Brightness.dark,
                       );
                     }).toList(),
                   ),
@@ -348,10 +375,15 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget buildStatusCard(DateTime start, DateTime end) {
+    Color sabah = Color.fromARGB(255, 123, 167, 216);
+    Color masa = Color.fromARGB(255, 180, 111, 113);
+    Color defaultColor = Theme.of(context).brightness == Brightness.dark
+        ? Colors.grey[700]!.withOpacity(0.25)
+        : Color.fromARGB(255, 217, 208, 193).withOpacity(0.25);
     return Card(
       color: Theme.of(context).brightness == Brightness.dark
           ? null
-          : Color(0xFFFFFFFF),
+          : Color.fromARGB(255, 247, 240, 226),
       shape: RoundedRectangleBorder(
           side: BorderSide(color: Color(0xFFE1D2CC)),
           borderRadius: BorderRadius.circular(16.0)),
@@ -367,7 +399,13 @@ class _HomeScreenState extends State<HomeScreen>
               child: Center(
                 child: Text(
                   "جميع الأيام",
-                  style: TextStyle(fontSize: 24),
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        //: Color.fromARGB(255, 217, 208, 193),
+                        : fontColorLight,
+                  ),
                 ),
               ),
             ),
@@ -383,18 +421,15 @@ class _HomeScreenState extends State<HomeScreen>
               scrollable: true,
               showText: false,
               showColorTip: false,
-              defaultColor: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.grey[700]
-                  //: Color.fromARGB(255, 217, 208, 193),
-                  : Color(0xFFEEEEEE),
+              defaultColor: defaultColor,
               textColor: Theme.of(context).textTheme.labelSmall!.color,
               // startDate: DateTime(2022, 12, 1),
               // endDate: DateTime(2022, 12, 31),
               colorMode: ColorMode.opacity,
               datasets: heatMapDatasets,
-              colorsets: const {
+              colorsets: {
                 //1: Colors.yellow[600]!,
-                1: Color(0xFF73CABA),
+                1: animate ? defaultColor : Color(0xFF73CABA),
                 3: Colors.orange,
                 5: Colors.yellow,
                 7: Colors.green,
@@ -417,7 +452,7 @@ class _HomeScreenState extends State<HomeScreen>
     print("name: $name - id: $id");
     final habit = HabitRecord(
         isDefaultHabit: false,
-        id: id,
+        id: UniqueKey().toString(),
         name: name,
         creationDate: DateTime(
             DateTime.now().year, DateTime.now().month, DateTime.now().day));
@@ -426,17 +461,22 @@ class _HomeScreenState extends State<HomeScreen>
 
   void habitCheckIn({required HabitRecord habit, int? value}) {
     var today = DateTime.now();
-    habit.records![DateTime(today.year, today.month, today.day)] = value ?? 1;
+    habit.records![DateTime(today.year, today.month, today.day)] =
+        value ?? habit.maxValue;
+
     habit.save();
   }
 }
 
 class HabitButtonAnimated extends StatefulWidget {
   HabitButtonAnimated(
-      {super.key, required this.habit, required this.onClickedDone});
+      {super.key,
+      required this.habit,
+      required this.onClickedDone,
+      required this.isDarkMode});
   final HabitRecord habit;
   final Function({required HabitRecord habit, int? value}) onClickedDone;
-
+  final bool isDarkMode;
   @override
   State<HabitButtonAnimated> createState() => _HabitButtonAnimatedState();
 }
@@ -458,11 +498,12 @@ class _HabitButtonAnimatedState extends State<HabitButtonAnimated>
 
   @override
   void initState() {
+    double lowerBoundController = widget.isDarkMode ? 0.15 : 0.40;
     DateTime today = DateTime.now();
     _controller = AnimationController(
         vsync: this,
         duration: Duration(milliseconds: 750),
-        lowerBound: 0.15,
+        lowerBound: lowerBoundController,
         upperBound: 1);
     if (widget.habit.records!
         .containsKey(DateTime(today.year, today.month, today.day)))
@@ -534,8 +575,8 @@ class _HabitButtonAnimatedState extends State<HabitButtonAnimated>
                 "${widget.habit.calculateStreak()}",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 38,
-                    //color: fontColorLight,
                     fontWeight: FontWeight.w400),
               ),
               Text(
@@ -543,7 +584,7 @@ class _HabitButtonAnimatedState extends State<HabitButtonAnimated>
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                     fontSize: 22,
-                    //color: fontColorLight,
+                    color: Colors.white,
                     fontWeight: FontWeight.w600),
               ),
               // Align(
@@ -562,6 +603,25 @@ class _HabitButtonAnimatedState extends State<HabitButtonAnimated>
                 isMorningAthkar: widget.habit.id == "###1" ? true : false);
           }));
         } else {
+          // showDialog(
+          //     useSafeArea: false,
+          //     context: context,
+          //     builder: (context) => HabitStatsPagePopUp(
+          //           habit: widget.habit,
+          //         ));
+
+          // showGeneralDialog(
+          //     context: context,
+          //     barrierDismissible: true,
+          //     barrierLabel:
+          //         MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          //     barrierColor: Colors.black45,
+          //     transitionDuration: const Duration(milliseconds: 400),
+          //     pageBuilder: (BuildContext buildContext, Animation animation,
+          //             Animation secondaryAnimation) =>
+          //         HabitStatsPagePopUp(
+          //           habit: widget.habit,
+          //         ));
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return HabitStatsPage(
               habit: widget.habit,

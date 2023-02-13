@@ -27,7 +27,8 @@ class HabitRecord extends HiveObject {
       required this.name,
       this.isBasicHabit = false,
       this.isDefaultHabit = true,
-      required this.creationDate}) {
+      required this.creationDate,
+      this.maxValue = 1}) {
     records = {};
   }
 
@@ -38,6 +39,8 @@ class HabitRecord extends HiveObject {
   late bool?
       isBasicHabit; //basic means only Done or not, it doesnt have a value like number of pages in reading habit
 
+  @HiveField(10, defaultValue: 1)
+  int maxValue;
   bool hasToday() {
     DateTime today = DateTime.now();
 
@@ -99,65 +102,13 @@ class HabitRecord extends HiveObject {
   }
 }
 
-// class Habit {
-//   List<HabitRecord> list;
-//   String? name;
-//   String? id;
-//   int? count;
-//   List<DateTime>? dates;
 
-//   Habit({required List<HabitRecord> this.list}) {
-//     if (list.isNotEmpty) {
-//       name = list[0].name;
-//       id = list[0].id;
-//       count = list.length;
-//       dates = list.map((e) => e.date).toList();
-//     }
-//   }
-//   void CheckToday({int? value}) {
-//     HabitRecord today = HabitRecord(
-//       name: name!,
-//       id: id!,
-//       date: DateTime.now(),
-//       value: value ?? 0,
-//     );
-//     today.save();
-//     //TODO: save into hive.
-//   }
+// Updating a class
+// If an existing class needs to be changed – for example, you'd like the class to have a new field – but you'd still like to read objects written with the old adapter, don't worry! It is straightforward to update generated adapters without breaking any of your existing code. Just remember the following rules:
 
-// }
-// class HiveDB {
-//   static final HiveDB _singleton = HiveDB._internal();
-//   static Box<Habit> _habitsBox;
-
-//   factory HiveDB() {
-//     return _singleton;
-//   }
-
-//   HiveDB._internal() {
-//     // Open the Hive database and get the box for the Habit objects
-//     Hive.openBox('habits', compactor: HiveCompactor()).then((box) {
-//       _habitsBox = box;
-//     });
-//   }
-
-//   Future<void> addHabit(Habit habit) async {
-//     // Add the Habit object to the box
-//     await _habitsBox.add(habit);
-//   }
-
-//   Future<List<Habit>> getHabits() async {
-//     // Get a list of all the Habit objects in the box
-//     return _habitsBox.values.toList();
-//   }
-
-//   Future<void> updateHabit(Habit habit) async {
-//     // Update the Habit object in the box
-//     await _habitsBox.put(habit.hashCode, habit);
-//   }
-
-//   Future<void> deleteHabit(Habit habit) async {
-//     // Delete the Habit object from the box
-//     await _habitsBox.delete(habit.hashCode);
-//   }
-// }
+// Don't change the field numbers for any existing fields.
+// If you add new fields, any objects written by the "old" adapter can still be read by the new adapter. These fields are just ignored. Similarly, objects written by your new code can be read by your old code: the new field is ignored when parsing.
+// Fields can be renamed and even changed from public to private or vice versa as long as the field number stays the same.
+// Fields can be removed, as long as the field number is not used again in your updated class.
+// Changing the type of a field is not supported. You should create a new one instead.
+// You have to provide defaultValue for new non-nullable fields after enabling null safety.

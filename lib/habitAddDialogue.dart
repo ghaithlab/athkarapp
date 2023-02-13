@@ -89,7 +89,7 @@ class _TransactionDialogState extends State<TransactionDialog> {
           border: OutlineInputBorder(),
           hintText: 'اسم العادة',
         ),
-        validator: (name) => name != null && name.isEmpty ? 'اسم العادم' : null,
+        validator: (name) => name != null && name.isEmpty ? 'اسم العادة' : null,
       );
 
   Widget buildAmount() => TextFormField(

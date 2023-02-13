@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:ui';
 
+import 'package:athkarapp/Widgets/alertWidget.dart';
 import 'package:athkarapp/habitStatsPage.dart';
 import 'package:athkarapp/main.dart';
 import 'package:athkarapp/models/habitsModel.dart';
@@ -13,6 +15,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'athkarListView.dart';
+
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class AthkarPage extends StatefulWidget {
   final HabitRecord habit;
@@ -33,95 +38,36 @@ class _AthkarPageState extends State<AthkarPage> {
 //testing
 //testing 2
 
-  Future<bool> _showMessage(
-      String msg, String title, bool isNotificationOnly) async {
-    bool result = false;
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 28,
-            ),
-            textDirection: TextDirection.rtl,
-          ),
-          content: Text(
-            msg,
-            style: const TextStyle(
-              fontSize: 18,
-              height: 1.5,
-            ),
-            textAlign: TextAlign.right,
-            textDirection: TextDirection.rtl,
-          ),
-          actions: [
-            Directionality(
-              textDirection: TextDirection.rtl,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 8, left: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: buildButtons(isNotificationOnly),
-                ),
-              ),
-            )
-          ],
-        );
-      },
-    ).then((value) {
-      result = value;
-    });
-    return result;
-  }
-
-  List<Widget> buildButtons(bool isNotifOnly) {
-    if (isNotifOnly) {
-      return [
-        TextButton(
-          child: Text("إغلاق"),
-          onPressed: () {
-            Navigator.of(context).pop(true);
-          },
-        )
-      ];
-    } else {
-      return [
-        TextButton(
-          child: Text("استخدام الموقع"),
-          onPressed: () {
-            Navigator.of(context).pop(true);
-          },
-        ),
-        TextButton(
-          child: Text("تخطي"),
-          onPressed: () {
-            Navigator.of(context).pop(false);
-          },
-        ),
-      ];
-    }
-  }
-
   Future getPrayerTimes() async {
     //var scheduleNotif;
 
     var scheduleNotif = _prefs.getBool('scheduleNotif');
     print("scheduleNotif settings is $scheduleNotif");
-    if (Platform.isAndroid) {
+    if (Platform.isAndroid || Platform.isIOS) {
       //TODO: Remove when adding scheduing in IOS
       if (scheduleNotif == null) {
         // first time app open
-        if (await _showMessage(
+        if (await AlertWidget.showMessage(
             "يحتاج التطبيق إلى معرفة الموقع لحساب أوقات الصلاة ليقوم بإظهار إشعارات تذكير بالأذكار بأوقاتها المستحبة وهي بين صلاة الفجر وطلوع الشمس لأذكار الصباح و بين صلاة العصر وغروب الشمس لأذكار المساء، هل تريد جدولة الإشعارات؟",
             "إذن استخدام الموقع",
-            false)) {
+            false,
+            context,
+            "استخدام الموقع",
+            "تخطي")) {
           //ok button clicked
           PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
-          p.scheduleNotifications().onError((error, stackTrace) =>
-              _showMessage(error.toString(), "خطأ", true));
-          _prefs.setBool('scheduleNotif', true);
+          try {
+            await p.scheduleNotifications();
+            setState(() {
+              _prefs.setBool('scheduleNotif', true);
+            });
+          } catch (e) {
+            setState(() {
+              _prefs.setBool('scheduleNotif', false);
+            });
+            AlertWidget.showMessage(
+                e.toString(), "خطأ", true, context, "إغلاق", "");
+          }
         } else {
           //no button clicked
           _prefs.setBool('scheduleNotif', false);
@@ -129,7 +75,7 @@ class _AthkarPageState extends State<AthkarPage> {
       } else if (scheduleNotif == true) {
         PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
         //lets not notify if it failed since it will try again later in another open
-        p.scheduleNotifications().onError((error, stackTrace) {
+        await p.scheduleNotifications().onError((error, stackTrace) {
           // _showMessage(error.toString(), "خطأ", true);
         });
       }
@@ -140,25 +86,39 @@ class _AthkarPageState extends State<AthkarPage> {
     //var scheduleNotif;
 
     //var scheduleNotif = _prefs.getBool('scheduleNotif');
-    if (Platform.isAndroid) {
+    if (Platform.isAndroid || Platform.isIOS) {
       //TODO: Remove when adding scheduing in IOS
 
       // first time app open
-      if (await _showMessage(
+      if (await AlertWidget.showMessage(
           "يحتاج التطبيق إلى معرفة الموقع لحساب أوقات الصلاة ليقوم بإظهار إشعارات تذكير بالأذكار بأوقاتها المستحبة وهي بين صلاة الفجر وطلوع الشمس لأذكار الصباح و بين صلاة العصر وغروب الشمس لأذكار المساء، هل تريد جدولة الإشعارات؟",
           "إذن استخدام الموقع",
-          false)) {
+          false,
+          context,
+          "استخدام الموقع",
+          "تخطي")) {
         //ok button clicked
         PrayerTimeNotificationScheduler p = PrayerTimeNotificationScheduler();
-        p.scheduleNotifications().onError(
-            (error, stackTrace) => _showMessage(error.toString(), "خطأ", true));
-        _prefs.setBool('scheduleNotif', true);
+        // p.scheduleNotifications().onError((error, stackTrace) =>
+        //     AlertWidget.showMessage(
+        //         error.toString(), "خطأ", true, context, "إغلاق", ""));
+        // _prefs.setBool('scheduleNotif', true);
+        try {
+          await p.scheduleNotifications();
+
+          _prefs.setBool('scheduleNotif', true);
+        } catch (e) {
+          _prefs.setBool('scheduleNotif', false);
+
+          AlertWidget.showMessage(
+              e.toString(), "خطأ", true, context, "إغلاق", "");
+        }
       } else {
         //no button clicked
-        setState(() {
-          _prefs.setBool('scheduleNotif', false);
-        });
+
+        _prefs.setBool('scheduleNotif', false);
       }
+      setState(() {});
     }
   }
 
@@ -282,21 +242,27 @@ class _AthkarPageState extends State<AthkarPage> {
                       },
                       tooltip: 'تبديل السمة',
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.stacked_line_chart),
-                      onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return StatsPage();
-                        }));
-                      },
-                      tooltip: 'تبديل السمة',
-                    ),
+                    // IconButton(
+                    //   icon: const Icon(Icons.stacked_line_chart),
+                    //   onPressed: () {
+                    //     Navigator.push(context,
+                    //         MaterialPageRoute(builder: (context) {
+                    //       return StatsPage();
+                    //     }));
+                    //   },
+                    //   tooltip: 'تبديل السمة',
+                    // ),
 
                     // IconButton(
                     //   icon: const Icon(Icons.brightness_6),
-                    //   onPressed: () {
-                    //     MyApp.of(context)!.changeTheme();
+                    //   onPressed: () async {
+                    //     await NotificationsApi.schedule(
+                    //       title: "title",
+                    //       body: "from",
+                    //       payload: "payload",
+                    //       time: tz.TZDateTime.now(tz.local)
+                    //           .add(const Duration(seconds: 5)),
+                    //     );
                     //   },
                     //   tooltip: 'تبديل السمة',
                     // ),
@@ -369,8 +335,8 @@ class _AthkarPageState extends State<AthkarPage> {
                       // ),
                       itemBuilder: (ctx) => [
                         _buildPopupMenuItem('إبدأ من جديد', Icons.refresh, 0),
-                        _buildPopupMenuItem(
-                            'تبديل السمة', Icons.brightness_6, 1),
+                        // _buildPopupMenuItem(
+                        //     'تبديل السمة', Icons.brightness_6, 1),
                         getNotifcationButton(),
                         //_buildPopupMenuItem('Exit', Icons.exit_to_app, 3),
 

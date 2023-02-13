@@ -1,7 +1,11 @@
+import 'dart:ui';
+
 import 'package:athkarapp/Widgets/alertWidget.dart';
 import 'package:athkarapp/Widgets/numberCounter.dart';
 import 'package:athkarapp/clicksPerDay.dart';
 import 'package:athkarapp/habitAddDialogue.dart';
+import 'package:athkarapp/heatMapWidget/data/heatmap_color_mode.dart';
+import 'package:athkarapp/heatMapWidget/heatmap.dart';
 import 'package:athkarapp/homeScreen.dart';
 import 'package:athkarapp/models/boxes.dart';
 import 'package:athkarapp/models/habitsModel.dart';
@@ -9,21 +13,19 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 
-import 'heatMapWidget/data/heatmap_color_mode.dart';
-import 'heatMapWidget/heatmap.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/animation.dart';
 
-class HabitStatsPage extends StatefulWidget {
+class HabitStatsPagePopUp extends StatefulWidget {
   final HabitRecord habit;
-  const HabitStatsPage({super.key, required this.habit});
+  const HabitStatsPagePopUp({super.key, required this.habit});
 
   @override
-  State<HabitStatsPage> createState() => _HabitStatsPageState();
+  State<HabitStatsPagePopUp> createState() => _HabitStatsPageStatePopUp();
 }
 
-class _HabitStatsPageState extends State<HabitStatsPage> {
+class _HabitStatsPageStatePopUp extends State<HabitStatsPagePopUp> {
   bool isOpacityMode = true;
   // Map<DateTime, int> heatMapDatasets = {
   //   DateTime(2022, 5, 6): 3,
@@ -81,167 +83,180 @@ class _HabitStatsPageState extends State<HabitStatsPage> {
     }
     //printer();
     //clicksPerDay.fillMorningEveningDummyData();
-    return ValueListenableBuilder<Box<HabitRecord>>(
-      valueListenable: Boxes.getHabits().listenable(),
-      builder: (context, box, _) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: Scaffold(
-            appBar: AppBar(
-              title: Text("إحصاءات - ${widget.habit.name}"),
-              actions: [
-                if (widget.habit.isDefaultHabit! == false)
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () async {
-                      //_showMessage();
-                      if (await AlertWidget.showMessage(
-                          "هل أنت متأكد من حذف العادة ${widget.habit.name}؟\n\nلا يمكن استعادة بيانات هذه العادة إذا تم حذفها.",
-                          "تنبيه",
-                          false,
-                          context,
-                          "نعم",
-                          "لا")) {
-                        widget.habit.delete();
-                        Navigator.of(context).pop();
-                      }
-                      //setState(() {});
-                    },
-                    tooltip: 'حذف العادة',
-                  ),
-                // if (widget.habit.isDefaultHabit! == false)
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () async {
-                    showDialog(
-                      context: context,
-                      builder: (context) => TransactionDialog(
-                        onClickedDone: saveHabit,
-                        transaction: widget.habit,
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+      child: ValueListenableBuilder<Box<HabitRecord>>(
+        valueListenable: Boxes.getHabits().listenable(),
+        builder: (context, box, _) {
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: Dialog(
+              // contentPadding: EdgeInsets.zero,
+              //backgroundColor: defaultColor.withOpacity(0),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12.0))),
+              backgroundColor: defaultColor.withOpacity(0),
+              child: SingleChildScrollView(
+                child: Column(
+                  //mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Card(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? null
+                          : //Color(0xFFFFFFFF),
+                          //
+                          // Color.fromARGB(255, 251, 249, 245),
+                          Color.fromARGB(255, 247, 240, 226),
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(color: Color(0xFFE1D2CC)),
+                        borderRadius: BorderRadius.circular(16.0),
                       ),
-                    );
-                  },
-                  tooltip: 'تعديل العادة',
-                ),
-              ],
-            ),
-            body: SingleChildScrollView(
-              child: Column(
-                //mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Card(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? null
-                        : //Color(0xFFFFFFFF),
-                        //
-                        // Color.fromARGB(255, 251, 249, 245),
-                        Color.fromARGB(255, 247, 240, 226),
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(color: Color(0xFFE1D2CC)),
-                      borderRadius: BorderRadius.circular(16.0),
+                      //   margin: const EdgeInsets.all(20),
+                      elevation: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed:
+                                      widget.habit.isDefaultHabit! == false
+                                          ? () async {
+                                              //_showMessage();
+                                              if (await AlertWidget.showMessage(
+                                                  "هل أنت متأكد من حذف العادة ${widget.habit.name}؟\n\nلا يمكن استعادة بيانات هذه العادة إذا تم حذفها.",
+                                                  "تنبيه",
+                                                  false,
+                                                  context,
+                                                  "نعم",
+                                                  "لا")) {
+                                                widget.habit.delete();
+                                                Navigator.of(context).pop();
+                                              }
+                                              //setState(() {});
+                                            }
+                                          : null,
+                                  tooltip: 'حذف العادة',
+                                ),
+                                Text(
+                                  "جميع الأيام",
+                                  style: Theme.of(context).textTheme.labelLarge,
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed:
+                                      widget.habit.isDefaultHabit! == false
+                                          ? () async {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    TransactionDialog(
+                                                  onClickedDone: saveHabit,
+                                                  transaction: widget.habit,
+                                                ),
+                                              );
+                                            }
+                                          : null,
+                                  tooltip: 'تعديل العادة',
+                                ),
+                              ],
+                            ),
+                            StatsRow(
+                              mp: {
+                                'daysCount': widget.habit.calculateDaysCount(),
+                                'consistency':
+                                    widget.habit.calculateConsistency(),
+                                'streak': widget.habit.calculateStreak()
+                              },
+                            ),
+                            SizedBox(
+                              height: 4,
+                            ),
+                            Divider(
+                              thickness: 1,
+                            ),
+                            HeatMap(
+                              startDate: start,
+                              endDate: last,
+                              scrollable: true,
+                              showText: false,
+                              showColorTip: false,
+                              defaultColor: defaultColor,
+                              //: Color(0xFFEEEEEE),
+                              textColor:
+                                  Theme.of(context).textTheme.labelSmall!.color,
+                              // startDate: DateTime(2022, 12, 1),
+                              // endDate: DateTime(2022, 12, 31),
+                              colorMode: isOpacityMode
+                                  ? ColorMode.opacity
+                                  : ColorMode.color,
+                              datasets: widget.habit.records,
+                              colorsets: {
+                                //1: Colors.red[400]!,
+                                //1: Color(0xFFFFD89B),
+                                //1: Color.fromARGB(255, 180, 111, 113), try1
+                                1: animate ? defaultColor : sabah,
+                                3: Colors.orange,
+                                5: Colors.yellow,
+                                7: Colors.green,
+                                9: Colors.blue,
+                                11: Colors.indigo,
+                                13: Colors.purple,
+                              },
+                              onClick: (value) {
+                                showSnackMessge(
+                                    "${value.year} - ${value.month} - ${value.day}");
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    margin: const EdgeInsets.all(20),
-                    elevation: 1,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
+                    // HabitButtonAnimated(
+                    //   habit: widget.habit,
+                    //   onClickedDone: habitCheckIn,
+                    // ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("جميع الأيام",
-                              style: Theme.of(context).textTheme.labelLarge),
-                          StatsRow(
-                            mp: {
-                              'daysCount': widget.habit.calculateDaysCount(),
-                              'consistency':
-                                  widget.habit.calculateConsistency(),
-                              'streak': widget.habit.calculateStreak()
+                          Switch(
+                            activeColor: sabah,
+                            value: light0,
+                            onChanged: (bool value) {
+                              toggleToday(habit: widget.habit);
+                              setState(() {
+                                light0 = value;
+                              });
                             },
                           ),
-                          SizedBox(
-                            height: 4,
-                          ),
-                          Divider(
-                            thickness: 1,
-                          ),
-                          HeatMap(
-                            startDate: start,
-                            endDate: last,
-                            scrollable: true,
-                            showText: false,
-                            showColorTip: false,
-                            defaultColor: defaultColor,
-                            //: Color(0xFFEEEEEE),
-                            textColor:
-                                Theme.of(context).textTheme.labelSmall!.color,
-                            // startDate: DateTime(2022, 12, 1),
-                            // endDate: DateTime(2022, 12, 31),
-                            colorMode: isOpacityMode
-                                ? ColorMode.opacity
-                                : ColorMode.color,
-                            datasets: widget.habit.records,
-                            colorsets: {
-                              //1: Colors.red[400]!,
-                              //1: Color(0xFFFFD89B),
-                              //1: Color.fromARGB(255, 180, 111, 113), try1
-                              1: animate ? defaultColor : sabah,
-                              3: Colors.orange,
-                              5: Colors.yellow,
-                              7: Colors.green,
-                              9: Colors.blue,
-                              11: Colors.indigo,
-                              13: Colors.purple,
-                            },
-                            onClick: (value) {
-                              showSnackMessge(
-                                  "${value.year} - ${value.month} - ${value.day}");
-                            },
+                          Container(
+                            width: 80,
+                            child: Text(
+                              light0 ? "اكتملت" : "غير مكتملة",
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.white),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  // HabitButtonAnimated(
-                  //   habit: widget.habit,
-                  //   onClickedDone: habitCheckIn,
-                  // ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Switch(
-                          activeColor: sabah,
-                          value: light0,
-                          onChanged: (bool value) {
-                            toggleToday(habit: widget.habit);
-                            setState(() {
-                              light0 = value;
-                            });
-                          },
-                        ),
-                        Container(
-                          width: 80,
-                          child: Text(
-                            light0 ? "اكتملت" : "غير مكتملة",
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge!
-                                .copyWith(fontSize: 18),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // HabitButtonAnimated1(
-                  //   habit: widget.habit,
-                  //   onClickedDone: (
-                  //       {required HabitRecord habit, int? value}) {},
-                  // ),
-                ],
+                    // HabitButtonAnimated1(
+                    //   habit: widget.habit,
+                    //   onClickedDone: (
+                    //       {required HabitRecord habit, int? value}) {},
+                    // ),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

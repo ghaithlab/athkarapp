@@ -38,7 +38,7 @@ class HeatMapContainer extends StatelessWidget {
             borderRadius: BorderRadius.all(Radius.circular(borderRadius ?? 5)),
           ),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 1500),
             curve: Curves.easeInOutQuad,
             width: size,
             height: size,
@@ -52,6 +52,13 @@ class HeatMapContainer extends StatelessWidget {
                   )
                 : null,
             decoration: BoxDecoration(
+              border: date.compareTo(DateTime(
+                          DateTime.now().year, //set borders to only today's box
+                          DateTime.now().month,
+                          DateTime.now().day)) ==
+                      0
+                  ? Border.all(color: Colors.white.withOpacity(0.65))
+                  : null,
               color: selectedColor,
               borderRadius:
                   BorderRadius.all(Radius.circular(borderRadius ?? 5)),

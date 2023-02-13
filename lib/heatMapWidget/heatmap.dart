@@ -1,3 +1,4 @@
+import 'package:athkarapp/heatMapWidget/widget/heatmap_week_text.dart';
 import 'package:flutter/material.dart';
 import './widget/heatmap_page.dart';
 import './widget/heatmap_color_tip.dart';
@@ -117,10 +118,48 @@ class _HeatMap extends State<HeatMap> {
   /// Put child into [SingleChildScrollView] so that user can scroll the widet horizontally.
   Widget _scrollableHeatMap(Widget child) {
     return widget.scrollable
-        ? SingleChildScrollView(
-            reverse: true,
-            scrollDirection: Axis.horizontal,
-            child: child,
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              HeatMapWeekText(
+                margin: widget.margin,
+                fontSize: widget.fontSize,
+                size: widget.size,
+                fontColor: widget.textColor,
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: ShaderMask(
+                    shaderCallback: (Rect rect) {
+                      return LinearGradient(
+                        begin: Alignment.centerRight,
+                        end: Alignment.centerLeft,
+                        colors: [
+                          Colors.purple,
+                          Colors.transparent,
+                          Colors.transparent,
+                          Colors.purple
+                        ],
+                        stops: [
+                          0.0,
+                          0.05,
+                          0.95,
+                          1.0
+                        ], // 10% purple, 80% transparent, 10% purple
+                      ).createShader(rect);
+                    },
+                    blendMode: BlendMode.dstOut,
+                    child: SingleChildScrollView(
+                      reverse: true,
+                      scrollDirection: Axis.horizontal,
+                      child: child,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           )
         : child;
   }
@@ -128,24 +167,28 @@ class _HeatMap extends State<HeatMap> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         // Heatmap Widget.
-        _scrollableHeatMap(HeatMapPage(
-          endDate: widget.endDate ?? DateTime.now(),
-          startDate: widget.startDate ??
-              DateUtil.threeMonthBefore(widget.endDate ?? DateTime.now()),
-          colorMode: widget.colorMode,
-          size: widget.size,
-          fontSize: widget.fontSize,
-          datasets: widget.datasets,
-          defaultColor: widget.defaultColor,
-          textColor: widget.textColor,
-          colorsets: widget.colorsets,
-          borderRadius: widget.borderRadius,
-          onClick: widget.onClick,
-          margin: widget.margin,
-          showText: widget.showText,
+        _scrollableHeatMap(Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10),
+          child: HeatMapPage(
+            endDate: widget.endDate ?? DateTime.now(),
+            startDate: widget.startDate ??
+                DateUtil.threeMonthBefore(widget.endDate ?? DateTime.now()),
+            colorMode: widget.colorMode,
+            size: widget.size,
+            fontSize: widget.fontSize,
+            datasets: widget.datasets,
+            defaultColor: widget.defaultColor,
+            textColor: widget.textColor,
+            colorsets: widget.colorsets,
+            borderRadius: widget.borderRadius,
+            onClick: widget.onClick,
+            margin: widget.margin,
+            showText: widget.showText,
+          ),
         )),
 
         // Show HeatMapColorTip if showColorTip is true.

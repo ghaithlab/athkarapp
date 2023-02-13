@@ -45,7 +45,7 @@ class DateUtil {
   // ];
 
   static const List<String> WEEK_LABEL = [
-    '',
+    //'',
     'الأحد',
     'الاثنين',
     'الثلاثاء',

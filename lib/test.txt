@@ -1,3 +1,13 @@
+Commands
+flutter build appbundle
+
+flutter run --release
+
+flutter packages pub run build_runner build
+
+flutter build ios   
+
+
 List paragraphs =[
   {
     "paragraph":

@@ -118,6 +118,8 @@ class _AthkarListState extends State<AthkarList> {
   }
 
   void checkIfFinished(Athkar thekir) async {
+    var _type = FeedbackType.warning;
+    Vibrate.feedback(_type);
     //log firebase even that an item was removed
     await FirebaseAnalytics.instance.logEvent(
       name: "single_thikir_done",
