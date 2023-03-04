@@ -1,4 +1,5 @@
 import 'package:athkarapp/main.dart';
+import 'package:athkarapp/utils/colorPalet.dart';
 import "package:flutter/material.dart";
 
 class AthkarListItem extends StatelessWidget {

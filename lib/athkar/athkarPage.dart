@@ -19,10 +19,17 @@ import 'athkarListView.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+enum AthkarType {
+  morning,
+  evening,
+  sleeping,
+}
+
 class AthkarPage extends StatefulWidget {
   final HabitRecord habit;
-  final bool isMorningAthkar;
-  AthkarPage({super.key, required this.habit, required this.isMorningAthkar});
+  //final bool isMorningAthkar;
+  final AthkarType athkarType;
+  AthkarPage({super.key, required this.habit, required this.athkarType});
   @override
   _AthkarPageState createState() => _AthkarPageState();
 }
@@ -31,7 +38,7 @@ class _AthkarPageState extends State<AthkarPage> {
   List<Athkar> athkars = [];
   final List<Athkar> _removedItems = [];
   double _fontSize = 0;
-  bool _isMorning = true; // Set the initial value to true
+  //bool _isMorning = true; // Set the initial value to true
   late SharedPreferences _prefs;
   bool selected = false;
   String pressedText = "أذكار الصباح";
@@ -134,7 +141,7 @@ class _AthkarPageState extends State<AthkarPage> {
     // else if (now.hour >= 12 || now.hour < 6) {
     //   _isMorning = false;
     // }
-    _isMorning = widget.isMorningAthkar;
+    //_isMorning = widget.isMorningAthkar;
     buildAthkarList();
     _fontSize = 20;
 
@@ -173,12 +180,27 @@ class _AthkarPageState extends State<AthkarPage> {
 
   @override
   Widget build(BuildContext context) {
+    String athkarName = "";
+    switch (widget.athkarType) {
+      case AthkarType.evening:
+        athkarName = "أذكار المساء";
+        break;
+      case AthkarType.morning:
+        athkarName = "أذكار الصباح";
+
+        break;
+      case AthkarType.sleeping:
+        athkarName = "أذكار النوم";
+
+        break;
+      default:
+    }
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            _isMorning ? "أذكار الصباح" : "أذكار المساء",
+            athkarName,
             // textAlign: TextAlign.center,
             //  style: TextStyle(color: Colors.white, fontSize: 20),
           ),
@@ -413,7 +435,7 @@ class _AthkarPageState extends State<AthkarPage> {
           athkars: athkars,
           fontSize: _fontSize,
           removedItems: _removedItems,
-          isMorning: _isMorning,
+          athkarType: widget.athkarType,
           habit: widget.habit,
         ),
       ),
@@ -452,7 +474,21 @@ class _AthkarPageState extends State<AthkarPage> {
   void buildAthkarList() {
     athkars.clear();
     _removedItems.clear();
-    List paragraphs = _isMorning ? paragraphsMorning : paragraphsEvening;
+    List paragraphs = [];
+    switch (widget.athkarType) {
+      case AthkarType.evening:
+        paragraphs = paragraphsEvening;
+        break;
+      case AthkarType.morning:
+        paragraphs = paragraphsMorning;
+
+        break;
+      case AthkarType.sleeping:
+        paragraphs = paragraphSleeping;
+
+        break;
+      default:
+    }
     for (int i = 0; i < paragraphs.length; i++) {
       String p = "${paragraphs[i]['paragraph']}";
       int count = paragraphs[i]['Counter'];

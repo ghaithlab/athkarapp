@@ -90,25 +90,24 @@ class _HabitStatsPageState extends State<HabitStatsPage> {
             appBar: AppBar(
               title: Text("إحصاءات - ${widget.habit.name}"),
               actions: [
-                if (widget.habit.isDefaultHabit! == false)
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () async {
-                      //_showMessage();
-                      if (await AlertWidget.showMessage(
-                          "هل أنت متأكد من حذف العادة ${widget.habit.name}؟\n\nلا يمكن استعادة بيانات هذه العادة إذا تم حذفها.",
-                          "تنبيه",
-                          false,
-                          context,
-                          "نعم",
-                          "لا")) {
-                        widget.habit.delete();
-                        Navigator.of(context).pop();
-                      }
-                      //setState(() {});
-                    },
-                    tooltip: 'حذف العادة',
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () async {
+                    //_showMessage();
+                    if (await AlertWidget.showMessage(
+                        "هل أنت متأكد من حذف العادة ${widget.habit.name}؟\n\nلا يمكن استعادة بيانات هذه العادة إذا تم حذفها.",
+                        "تنبيه",
+                        false,
+                        context,
+                        "نعم",
+                        "لا")) {
+                      widget.habit.delete();
+                      Navigator.of(context).pop();
+                    }
+                    //setState(() {});
+                  },
+                  tooltip: 'حذف العادة',
+                ),
                 // if (widget.habit.isDefaultHabit! == false)
                 IconButton(
                   icon: const Icon(Icons.edit),

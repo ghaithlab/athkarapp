@@ -1,7 +1,6 @@
-import 'dart:developer';
-
 import 'package:athkarapp/homeScreen.dart';
 import 'package:athkarapp/models/habitsModel.dart';
+import 'package:athkarapp/utils/colorPalet.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,7 +29,6 @@ void main() async {
 }
 
 //const fontColorLight = Color(0xFF897465);
-const fontColorLight = Color(0xFF964F36);
 
 class MyApp extends StatefulWidget {
   MyApp({super.key});
@@ -58,6 +56,10 @@ class _MyAppState extends State<MyApp> {
         _themeMode = _prefs.getBool('isDarkTheme') ?? true
             ? ThemeMode.dark
             : ThemeMode.light;
+
+        int newOpenCount = (prefs.getInt('app_open_count') ?? 0) + 1;
+        prefs.setInt('app_open_count', newOpenCount);
+        //prefs.setInt('app_open_count_later', 0);
       });
     });
   }

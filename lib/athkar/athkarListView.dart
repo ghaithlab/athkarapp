@@ -1,3 +1,4 @@
+import 'package:athkarapp/athkar/athkarPage.dart';
 import 'package:athkarapp/clicksPerDay.dart';
 import 'package:athkarapp/habitStatsPage.dart';
 import 'package:athkarapp/models/habitsModel.dart';
@@ -14,12 +15,12 @@ class AthkarList extends StatefulWidget {
   List<Athkar> athkars;
   double fontSize;
   List<Athkar> removedItems;
-  bool isMorning;
+  AthkarType athkarType;
   AthkarList(
       {required this.athkars,
       required this.fontSize,
       required this.removedItems,
-      required this.isMorning,
+      required this.athkarType,
       required this.habit});
   @override
   _AthkarListState createState() => _AthkarListState();
@@ -124,7 +125,7 @@ class _AthkarListState extends State<AthkarList> {
     await FirebaseAnalytics.instance.logEvent(
       name: "single_thikir_done",
       parameters: {
-        "athkar": widget.isMorning ? "morning" : "evening",
+        "athkar": widget.athkarType.toString(),
         "full_text": thekir.paragraph,
       },
     );
@@ -132,7 +133,7 @@ class _AthkarListState extends State<AthkarList> {
       await FirebaseAnalytics.instance.logEvent(
         name: "Athkar_done",
         parameters: {
-          "athkar": widget.isMorning ? "morning" : "evening",
+          "athkar": widget.athkarType.toString(),
         },
       );
       //Navigator.pop(context);

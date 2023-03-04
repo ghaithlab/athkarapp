@@ -1,24 +1,31 @@
 import 'dart:math';
 
+import 'package:athkarapp/HabitAddPage.dart';
 import 'package:athkarapp/Widgets/HabitStatsPagePopUp.dart';
+import 'package:athkarapp/Widgets/alertWidget.dart';
 import 'package:athkarapp/athkar/athkarPage.dart';
 import 'package:athkarapp/clicksPerDay.dart';
 import 'package:athkarapp/habitStatsPage.dart';
+import 'package:athkarapp/mockGenerator.dart';
 import 'package:athkarapp/models/boxes.dart';
 import 'package:athkarapp/models/habitsModel.dart';
+import 'package:athkarapp/utils/colorPalet.dart';
+import 'package:athkarapp/utils/habitsList.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'habitAddDialogue.dart';
-import 'habitButton.dart';
+import 'package:athkarapp/habitButton.dart';
 import 'heatMapWidget/data/heatmap_color_mode.dart';
 import 'heatMapWidget/heatmap.dart';
 
 import 'package:flutter/animation.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'main.dart';
 
@@ -96,8 +103,13 @@ class _HomeScreenState extends State<HomeScreen>
     return item;
   }
 
-  String morningAthkarId = "###1";
-  String eveningAthkarId = "###2";
+  bool mock = false;
+
+  // String morningAthkarId = "###1";
+  // String eveningAthkarId = "###2";
+  // String salatDuha = "###3";
+  // String salatWitr = "###4";
+
   void portOldStatsToDatabase() async {
     ClicksPerDay clicksPerDay = ClicksPerDay();
     await clicksPerDay.init();
@@ -107,7 +119,8 @@ class _HomeScreenState extends State<HomeScreen>
     Box box = Boxes.getHabits();
     if (morningAthkarListOld.keys.isNotEmpty) {
       //var morningAthkarHabitRecord = box.getAt(1) as HabitRecord;
-      var morningAthkarHabitRecord = getHabitById(morningAthkarId);
+      var morningAthkarHabitRecord =
+          getHabitById(defaultHabitsIds["morningAthkarId"]);
       if (morningAthkarHabitRecord != null) {
         morningAthkarListOld.forEach((key, value) {
           morningAthkarHabitRecord.records![key] = value;
@@ -122,7 +135,8 @@ class _HomeScreenState extends State<HomeScreen>
     }
     if (eveningAthkarLastOld.keys.isNotEmpty) {
       //var eveningAthkarHabitRecord = box.getAt(5) as HabitRecord;
-      var eveningAthkarHabitRecord = getHabitById(eveningAthkarId);
+      var eveningAthkarHabitRecord =
+          getHabitById(defaultHabitsIds["eveningAthkarId"]);
       if (eveningAthkarHabitRecord != null) {
         eveningAthkarLastOld.forEach((key, value) {
           eveningAthkarHabitRecord.records![key] = value;
@@ -143,14 +157,14 @@ class _HomeScreenState extends State<HomeScreen>
           DateTime.now().year, DateTime.now().month, DateTime.now().day);
       var defaultHabits = [
         HabitRecord(
-          id: UniqueKey().toString(),
+          id: defaultHabitsIds["salatDuha"],
           name: "صلاة الضحى",
           isBasicHabit: true,
           isDefaultHabit: true,
           creationDate: today,
         ),
         HabitRecord(
-          id: morningAthkarId,
+          id: defaultHabitsIds["morningAthkarId"],
           name: "أذكار الصباح",
           isBasicHabit: false,
           isDefaultHabit: true,
@@ -158,34 +172,20 @@ class _HomeScreenState extends State<HomeScreen>
           maxValue: 183,
         ),
         HabitRecord(
-          id: UniqueKey().toString(),
+          id: defaultHabitsIds["salatWitr"],
           name: "صلاة الوتر",
           isBasicHabit: true,
           isDefaultHabit: true,
           creationDate: today,
         ),
         HabitRecord(
-          id: eveningAthkarId,
+          id: defaultHabitsIds["eveningAthkarId"],
           name: "أذكار المساء",
           isBasicHabit: false,
           isDefaultHabit: true,
           creationDate: today,
           maxValue: 184,
         ),
-        // HabitRecord(
-        //   id: UniqueKey().toString(),
-        //   name: "رياضة: ضغط",
-        //   isBasicHabit: true,
-        //   isDefaultHabit: false,
-        //   creationDate: today,
-        // ),
-        // HabitRecord(
-        //   id: UniqueKey().toString(),
-        //   name: "رياضة: ثابت",
-        //   isBasicHabit: true,
-        //   isDefaultHabit: false,
-        //   creationDate: today,
-        // ),
         HabitRecord(
           id: UniqueKey().toString(),
           name: "قراءة ورد قرآن",
@@ -198,27 +198,88 @@ class _HomeScreenState extends State<HomeScreen>
       defaultHabits.forEach((e) async {
         await box.add(e);
       });
+      if (mock) mockData();
+    } else {
+      //backward compatibility to fix defaultHabitIds for version 2.0.2+13
+      Boxes.getHabits().values.forEach((element) {
+        switch (element.name) {
+          case "صلاة الضحى":
+            if (element.id != defaultHabitsIds["salatDuha"]) {
+              element.id = defaultHabitsIds["salatDuha"];
+              element.save();
+            }
+            break;
+          case "صلاة الوتر":
+            if (element.id != defaultHabitsIds["salatWitr"]) {
+              element.id = defaultHabitsIds["salatWitr"];
+              element.save();
+            }
+            break;
+          default:
+        }
+      });
     }
+    //backward compatibility to fix defaultHabitIds for version 1.0.0
     portOldStatsToDatabase();
+  }
+
+  void mockData() {
+    DateTime startDate = DateTime(2023, 1, 1);
+    DateTime endDate = DateTime.now();
+    Boxes.getHabits().values.forEach((element) {
+      int value;
+
+      element.records = mockGenerator.generateRandomDates(
+          startDate, endDate, element.maxValue);
+      element.creationDate = startDate;
+      element.save();
+    });
   }
 
   late bool animate = true;
 
   @override
   void initState() {
-    mmmain();
+    super.initState();
+    //this is because I need context in showAppSharePromot and it needs to be called after initstate is done
+    Future.delayed(Duration.zero, () {
+      mmmain();
+    });
 
     Future.delayed(Duration(milliseconds: 200)).then((value) => setState(() {
           animate = !animate;
         }));
+  }
 
-    super.initState();
+  void shareAppPrompt() {
+    SharedPreferences.getInstance().then((prefs) async {
+      //every five opens it will ask for sharing app and if pressed later will try after 5 opens then it wont open after that
+      if ((prefs.getInt('app_open_count') ?? 0) % 3 == 0 &&
+          (prefs.getInt('app_open_count_later') ?? 0) <
+              2) if (await AlertWidget.showMessage(
+          "نهدف في تطبيق عادات المسلم لمساعدة جميع المسلمين على الالتزام بالسنن المؤكدة، ساهم معنا في نشر التطبيق",
+          "ساهم معنا",
+          false,
+          context,
+          "موافق",
+          "لاحقا")) {
+        await Share.share(
+            'تطبيق عادات المسلم، لبناء عادات يومية إسلامية https://islamichabits.page.link/download',
+            subject: 'تحميل تطبيق عادات المسلم');
+        prefs.setInt('app_open_count_later', 2);
+      } else {
+        //لاحقا was press
+        int laterWillShare = (prefs.getInt('app_open_count_later') ?? 0) + 1;
+        prefs.setInt('app_open_count_later', laterWillShare);
+      }
+    });
   }
 
   void mmmain() async {
+    shareAppPrompt();
     print("main");
     print(Boxes.getHabits().values);
-    //await Boxes.getHabits().clear();
+    //if (mock) await Boxes.getHabits().clear();
 
     initializeDefaultHabits();
     // var habit = HabitRecord(id: UniqueKey().toString(), name: "firstHabit1");
@@ -265,6 +326,15 @@ class _HomeScreenState extends State<HomeScreen>
             //   tooltip: 'تبديل السمة',
             // ),
             IconButton(
+              icon: Icon(Icons.share),
+              onPressed: () {
+                Share.share(
+                    'تطبيق عادات المسلم، لبناء عادات يومية إسلامية https://islamichabits.page.link/download',
+                    subject: 'تحميل تطبيق عادات المسلم');
+              },
+              tooltip: 'مشاركة التطبيق',
+            ),
+            IconButton(
               icon: Icon(isDarkMode
                   ? Icons.light_mode_outlined
                   : Icons.dark_mode_outlined),
@@ -273,14 +343,29 @@ class _HomeScreenState extends State<HomeScreen>
               },
               tooltip: 'تبديل السمة',
             ),
+
+            // IconButton(
+            //   icon: const Icon(
+            //     Icons.add,
+            //   ),
+            //   onPressed: () {
+            //     showDialog(
+            //         context: context,
+            //         builder: (context) => TransactionDialog(
+            //               onClickedDone: addNewHabit,
+            //             ));
+            //   },
+            //   tooltip: 'إضافة عادة جديدة',
+            // ),
             IconButton(
-              icon: const Icon(Icons.add),
+              icon: const Icon(
+                Icons.add_box,
+                //color: Color.fromARGB(255, 210, 178, 126),
+              ),
               onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (context) => TransactionDialog(
-                          onClickedDone: addNewHabit,
-                        ));
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return HabitAddPage();
+                }));
               },
               tooltip: 'إضافة عادة جديدة',
             ),
@@ -344,12 +429,15 @@ class _HomeScreenState extends State<HomeScreen>
                     crossAxisCount: 2,
                     children: habits.map((e) {
                       return HabitButtonAnimated(
-                        key: UniqueKey(),
-                        habit: e,
-                        onClickedDone: habitCheckIn,
-                        isDarkMode:
-                            Theme.of(context).brightness == Brightness.dark,
-                      );
+                          key: UniqueKey(),
+                          habit: e,
+                          onClickedDone: habitCheckIn,
+                          isDarkMode:
+                              Theme.of(context).brightness == Brightness.dark,
+                          onTap: habitButtonTap,
+                          color: e.isDefaultHabit!
+                              ? defaultHabitColor
+                              : personalHabitColor);
                     }).toList(),
                   ),
                 ],
@@ -466,200 +554,54 @@ class _HomeScreenState extends State<HomeScreen>
 
     habit.save();
   }
-}
 
-class HabitButtonAnimated extends StatefulWidget {
-  HabitButtonAnimated(
-      {super.key,
-      required this.habit,
-      required this.onClickedDone,
-      required this.isDarkMode});
-  final HabitRecord habit;
-  final Function({required HabitRecord habit, int? value}) onClickedDone;
-  final bool isDarkMode;
-  @override
-  State<HabitButtonAnimated> createState() => _HabitButtonAnimatedState();
-}
+  void habitButtonTap({required HabitRecord habit}) {
+    if (habit.id == defaultHabitsIds["morningAthkarId"]) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return AthkarPage(
+          habit: habit,
+          athkarType: AthkarType.morning,
+        );
+      }));
+    } else if (habit.id == defaultHabitsIds["eveningAthkarId"]) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return AthkarPage(
+          habit: habit,
+          athkarType: AthkarType.evening,
+        );
+      }));
+    } else if (habit.id == defaultHabitsIds["sleepingAthkarId"]) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return AthkarPage(
+          habit: habit,
+          athkarType: AthkarType.sleeping,
+        );
+      }));
+    } else {
+      // showDialog(
+      //     useSafeArea: false,
+      //     context: context,
+      //     builder: (context) => HabitStatsPagePopUp(
+      //           habit: widget.habit,
+      //         ));
 
-class _HabitButtonAnimatedState extends State<HabitButtonAnimated>
-    with TickerProviderStateMixin {
-  late AnimationController _controller;
-  late AnimationController _controllerSize;
-  late double _scale;
-  bool animationDone = false;
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    _controller.dispose();
-    _controllerSize.dispose();
-
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    double lowerBoundController = widget.isDarkMode ? 0.15 : 0.40;
-    DateTime today = DateTime.now();
-    _controller = AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 750),
-        lowerBound: lowerBoundController,
-        upperBound: 1);
-    if (widget.habit.records!
-        .containsKey(DateTime(today.year, today.month, today.day)))
-      animationDone = true;
-    else {
-      // TODO: implement initState
-
-      _controller.addStatusListener((status) {
-        print('$status');
-        if (status == AnimationStatus.completed) {
-          animationDone = true;
-
-          widget.onClickedDone(habit: widget.habit);
-
-          var _type = FeedbackType.success;
-          Vibrate.feedback(_type);
-        }
-      });
-      _controller.addListener(() {
-        //print(_controller.value);
-        setState(() {});
-      });
+      // showGeneralDialog(
+      //     context: context,
+      //     barrierDismissible: true,
+      //     barrierLabel:
+      //         MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      //     barrierColor: Colors.black45,
+      //     transitionDuration: const Duration(milliseconds: 400),
+      //     pageBuilder: (BuildContext buildContext, Animation animation,
+      //             Animation secondaryAnimation) =>
+      //         HabitStatsPagePopUp(
+      //           habit: widget.habit,
+      //         ));
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return HabitStatsPage(
+          habit: habit,
+        );
+      }));
     }
-
-    _controllerSize = AnimationController(
-      vsync: this,
-      duration: Duration(
-        milliseconds: 30,
-      ),
-      lowerBound: 0.0,
-      upperBound: 0.1,
-    )..addListener(() {
-        setState(() {});
-      });
-
-    super.initState();
-  }
-
-  Color getColor(bool isDefaultHabit, bool isBasicHabit) {
-    if (isDefaultHabit)
-      return Color.fromARGB(255, 210, 178, 126);
-    else if (isBasicHabit)
-      return Color.fromARGB(255, 125, 173, 212);
-    else
-      return Color.fromARGB(255, 125, 212, 187);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    _scale = 1 - _controllerSize.value;
-
-    return GestureDetector(
-      child: Transform.scale(
-        scale: _scale,
-        child: Container(
-          padding: EdgeInsets.all(25),
-          decoration: BoxDecoration(
-              color: widget.habit.isDefaultHabit!
-                  ? Color.fromARGB(255, 210, 178, 126)
-                      .withOpacity(animationDone ? 1 : _controller.value)
-                  : Color.fromARGB(255, 125, 173, 212)
-                      .withOpacity(animationDone ? 1 : _controller.value),
-              // border: Border.all(width: 0),
-              borderRadius: BorderRadius.circular(15)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                "${widget.habit.calculateStreak()}",
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 38,
-                    fontWeight: FontWeight.w400),
-              ),
-              Text(
-                widget.habit.name,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 22,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600),
-              ),
-              // Align(
-              //   child: Icon(Icons.done_all),
-              //   alignment: Alignment.center,
-              // )
-            ],
-          ),
-        ),
-      ),
-      onTap: () {
-        if (widget.habit.id == "###1" || widget.habit.id == "###2") {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return AthkarPage(
-                habit: widget.habit,
-                isMorningAthkar: widget.habit.id == "###1" ? true : false);
-          }));
-        } else {
-          // showDialog(
-          //     useSafeArea: false,
-          //     context: context,
-          //     builder: (context) => HabitStatsPagePopUp(
-          //           habit: widget.habit,
-          //         ));
-
-          // showGeneralDialog(
-          //     context: context,
-          //     barrierDismissible: true,
-          //     barrierLabel:
-          //         MaterialLocalizations.of(context).modalBarrierDismissLabel,
-          //     barrierColor: Colors.black45,
-          //     transitionDuration: const Duration(milliseconds: 400),
-          //     pageBuilder: (BuildContext buildContext, Animation animation,
-          //             Animation secondaryAnimation) =>
-          //         HabitStatsPagePopUp(
-          //           habit: widget.habit,
-          //         ));
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return HabitStatsPage(
-              habit: widget.habit,
-            );
-          }));
-        }
-      },
-      onLongPressStart: (details) {
-        if (!animationDone) {
-          _controller.forward(from: 0.3);
-          _controllerSize.forward();
-        }
-        print("onLongPressStart");
-      },
-      onLongPressUp: () {
-        if (!animationDone) {
-          _controller.reverse();
-        }
-        print("onForcePressUp");
-        _controllerSize.reverse();
-
-        //TODO: add what happens when long press finish
-      },
-      onForcePressEnd: (details) {
-        print("onForcePressEnd");
-      },
-      onTapDown: (details) {
-        if (!animationDone) _controllerSize.forward();
-      },
-      onTapUp: (details) {
-        _controllerSize.reverse();
-      },
-      onTapCancel: () {
-        // if (_controllerSize.status == AnimationStatus.forward ||
-        //     _controllerSize.status == AnimationStatus.completed) {
-        _controllerSize.reverse();
-        // }
-      },
-    );
   }
 }

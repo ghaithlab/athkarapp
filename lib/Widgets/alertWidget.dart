@@ -56,13 +56,33 @@ class AlertWidget extends StatelessWidget {
       ];
     } else {
       return [
-        TextButton(
+        ElevatedButton(
+          style: ButtonStyle(
+              textStyle: MaterialStateProperty.all(
+                  TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+              backgroundColor: MaterialStateProperty.all(Color(0xFFF6DAAE)),
+              foregroundColor: MaterialStateProperty.all(Color(0xFF964F36))),
           child: Text(ok),
           onPressed: () {
             Navigator.of(context).pop(true);
           },
         ),
-        TextButton(
+        OutlinedButton(
+          style: ButtonStyle(
+            textStyle: MaterialStateProperty.all(
+                TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+            side: MaterialStateProperty.all(
+              BorderSide(
+                  color: Color(0xFFF6DAAE).withOpacity(0.55),
+                  width: 1.0,
+                  style: BorderStyle.solid),
+            ),
+            //backgroundColor: MaterialStateProperty.all(Color(0xFFF6DAAE)),
+            foregroundColor: MaterialStateProperty.all(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : Color(0xFF964F36)),
+          ),
           child: Text(no),
           onPressed: () {
             Navigator.of(context).pop(false);
